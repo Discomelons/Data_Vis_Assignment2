@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Melbourne Cafés & Parcels (Debug)</title>
+  <script src="https://cdn.jsdelivr.net/npm/vega@5"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vega-lite@5"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vega-embed@6"></script>
+  <style>
+    html, body { margin:0; padding:0; background:#fafafa; font-family:system-ui, Arial; }
+    #vis { width: 960px; height: 600px; margin: 12px auto 4px; }
+    #status { width: 960px; margin: 0 auto 12px; color:#333; font-size:14px; }
+    code { background:#f0f0f0; padding:2px 4px; border-radius:3px; }
+    .main { text-align: center; }
+  </style>
+</head>
+<body class="main">
+  <h1>Melbourne Cafe Density - Melbourne & Coffee</h1>
+  <div id="vis"></div>
+  <div id="status">loading…</div>
+
+  <script>
+  (async () => {
+    try {
+      const [mapRes, dataRes] = await Promise.all([
+        fetch('./data/map.json'),
+        fetch('./data/data.json')
+      ]);
+
+      if (!mapRes.ok) throw new Error('Failed to load map.json: ' + mapRes.status);
+      if (!dataRes.ok) throw new Error('Failed to load data.json: ' + dataRes.status);
+
+      const mapGeo = await mapRes.json();
+      const poiGeo = await dataRes.json();
+
+      const mapFeatures = (mapGeo && mapGeo.type === 'FeatureCollection' && Array.isArray(mapGeo.features)) ? mapGeo.features : [];
+      const poiFeatures = (poiGeo && poiGeo.type === 'FeatureCollection' && Array.isArray(poiGeo.features)) ? poiGeo.features : [];
+
+      // To Load Status
+      const statusEl = document.getElementById('status');
+      statusEl.innerHTML = `Loaded <code>map.json</code>: <b>${mapFeatures.length}</b> features &nbsp;|&nbsp; <code>data.json</code>: <b>${poiFeatures.length}</b> features`;
+
+      const spec = {
+        "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+        "width": 1060,
+        "height": 1000,
+        "background": "#ffffff",
+
+        "projection": { "type": "mercator", "center": [144.96, -37.82], "scale": 500000 },
+
+        "layer": [
+          { "data": { "sphere": true }, "mark": { "type": "geoshape", "fill": "#eef6fb" } },
+          {
+            "data": { "values": mapFeatures },
+            "mark": { "type": "geoshape", "fill": null, "stroke": "#111", "strokeWidth": 1 },
+            "encoding": {
+              "shape": { "field": "geometry", "type": "geojson" }
+            }
+          },
+        {
+          "data": { "values": poiFeatures },
+          "transform": [
+            {
+              "filter": "datum.properties \
+                && datum.geometry && datum.geometry.type==='Point' && datum.geometry.coordinates \
+                && lower(trim(datum.properties.industry_anzsic4_description)) == 'cafes and restaurants'"
+            },
+            { "calculate": "datum.geometry.coordinates[0]", "as": "lon" },
+            { "calculate": "datum.geometry.coordinates[1]", "as": "lat" }
+          ],
+          "mark": {
+            "type": "circle",
+            "opacity": 0.5,
+            "color": "#fc4457",
+            "stroke": "white",
+            "strokeWidth": 0.7,
+            "blend": "multiply"
+          },
+          "encoding": {
+            "longitude": { "field": "lon", "type": "quantitative" },
+            "latitude":  { "field": "lat", "type": "quantitative" },
+            "size": {
+              "field": "properties.number_of_seats",
+              "type": "quantitative",
+              "title": "Seats",
+              "scale": { "type": "sqrt", "range": [20, 200] }
+            },
+            "tooltip": [
+              { "field": "properties.trading_name", "title": "Name" },
+              { "field": "properties.business_address", "title": "Address" },
+              { "field": "properties.seating_type", "title": "Seating" },
+              { "field": "properties.number_of_seats", "title": "Seats" }
+            ]
+          }
+        }
+        ],
+
+        "config": { "view": { "stroke": null } }
+      };
+
+      vegaEmbed('#vis', spec, {actions:false}).catch(console.error);
+
+    } catch (err) {
+      console.error(err);
+      const div = document.getElementById('vis');
+      div.style.padding = '12px';
+      div.style.color = '#b00020';
+      div.textContent = 'Error: ' + (err && err.message ? err.message : err);
+      document.getElementById('status').textContent = 'Failed. Check console & Network tab.';
+    }
+  })();
+  </script>
+</body>
+</html>
