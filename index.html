@@ -22,6 +22,8 @@
   <script>
   (async () => {
     try {
+      // NOTE: These paths assume index.html sits next to /data/.
+      // If index.html is in a different folder, adjust ('./Assignment2/data/...', etc.)
       const [mapRes, dataRes] = await Promise.all([
         fetch('./data/map.json'),
         fetch('./data/data.json')
@@ -36,7 +38,7 @@
       const mapFeatures = (mapGeo && mapGeo.type === 'FeatureCollection' && Array.isArray(mapGeo.features)) ? mapGeo.features : [];
       const poiFeatures = (poiGeo && poiGeo.type === 'FeatureCollection' && Array.isArray(poiGeo.features)) ? poiGeo.features : [];
 
-      // To Load Status
+      // Status
       const statusEl = document.getElementById('status');
       statusEl.innerHTML = `Loaded <code>map.json</code>: <b>${mapFeatures.length}</b> features &nbsp;|&nbsp; <code>data.json</code>: <b>${poiFeatures.length}</b> features`;
 
@@ -53,52 +55,56 @@
           {
             "data": { "values": mapFeatures },
             "mark": { "type": "geoshape", "fill": null, "stroke": "#111", "strokeWidth": 1 },
+            "encoding": { "shape": { "field": "geometry", "type": "geojson" } }
+          },
+          {
+            "data": { "values": poiFeatures },
+            "transform": [
+              {
+                "filter": "datum.properties && datum.geometry && datum.geometry.type==='Point' && datum.geometry.coordinates"
+              },
+              {
+                "calculate": "lower(trim(datum.properties.industry_anzsic4_description || ''))",
+                "as": "cat"
+              },
+              {
+                "filter": "indexof(datum.cat, 'cafes and restaurants') >= 0"
+              },
+              { "calculate": "datum.geometry.coordinates[0]", "as": "lon" },
+              { "calculate": "datum.geometry.coordinates[1]", "as": "lat" },
+              { "window": [{ "op": "row_number", "as": "rank" }] },
+              { "filter": "datum.rank <= 1000" }
+            ],
+            "mark": {
+              "type": "circle",
+              "opacity": 0.5,
+              "color": "#fc4457",
+              "stroke": "white",
+              "strokeWidth": 0.7,
+              "blend": "multiply"
+            },
             "encoding": {
-              "shape": { "field": "geometry", "type": "geojson" }
+              "longitude": { "field": "lon", "type": "quantitative" },
+              "latitude":  { "field": "lat", "type": "quantitative" },
+              "size": {
+                "field": "properties.number_of_seats",
+                "type": "quantitative",
+                "title": "Seats",
+                "scale": { "type": "sqrt", "range": [20, 200] }
+              },
+              "tooltip": [
+                { "field": "properties.trading_name", "title": "Name" },
+                { "field": "properties.business_address", "title": "Address" },
+                { "field": "properties.seating_type", "title": "Seating" },
+                { "field": "properties.number_of_seats", "title": "Seats" }
+              ]
             }
-          },
-        {
-          "data": { "values": poiFeatures },
-          "transform": [
-            {
-              "filter": "datum.properties \
-                && datum.geometry && datum.geometry.type==='Point' && datum.geometry.coordinates \
-                && lower(trim(datum.properties.industry_anzsic4_description)) == 'cafes and restaurants'"
-            },
-            { "calculate": "datum.geometry.coordinates[0]", "as": "lon" },
-            { "calculate": "datum.geometry.coordinates[1]", "as": "lat" }
-          ],
-          "mark": {
-            "type": "circle",
-            "opacity": 0.5,
-            "color": "#fc4457",
-            "stroke": "white",
-            "strokeWidth": 0.7,
-            "blend": "multiply"
-          },
-          "encoding": {
-            "longitude": { "field": "lon", "type": "quantitative" },
-            "latitude":  { "field": "lat", "type": "quantitative" },
-            "size": {
-              "field": "properties.number_of_seats",
-              "type": "quantitative",
-              "title": "Seats",
-              "scale": { "type": "sqrt", "range": [20, 200] }
-            },
-            "tooltip": [
-              { "field": "properties.trading_name", "title": "Name" },
-              { "field": "properties.business_address", "title": "Address" },
-              { "field": "properties.seating_type", "title": "Seating" },
-              { "field": "properties.number_of_seats", "title": "Seats" }
-            ]
           }
-        }
         ],
-
         "config": { "view": { "stroke": null } }
       };
 
-      vegaEmbed('#vis', spec, {actions:false}).catch(console.error);
+      vegaEmbed('#vis', spec, { actions:false }).catch(console.error);
 
     } catch (err) {
       console.error(err);
