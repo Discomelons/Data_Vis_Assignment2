@@ -23,8 +23,8 @@
   (async () => {
     try {
       const [mapRes, dataRes] = await Promise.all([
-        fetch('./assignment2/data/map.json'),
-        fetch('./assignment2/data/data.json')
+        fetch('./Assignment2/data/map.json'),
+        fetch('./Assignment2/data/data.json')
       ]);
 
       if (!mapRes.ok) throw new Error('Failed to load map.json: ' + mapRes.status);
