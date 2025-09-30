@@ -60,16 +60,9 @@
           {
             "data": { "values": poiFeatures },
             "transform": [
-              {
-                "filter": "datum.properties && datum.geometry && datum.geometry.type==='Point' && datum.geometry.coordinates"
-              },
-              {
-                "calculate": "lower(trim(datum.properties.industry_anzsic4_description || ''))",
-                "as": "cat"
-              },
-              {
-                "filter": "indexof(datum.cat, 'cafes and restaurants') >= 0"
-              },
+              { "filter": "datum.properties && datum.geometry && datum.geometry.type==='Point' && datum.geometry.coordinates" },
+              { "calculate": "lower(trim(datum.properties.industry_anzsic4_description || ''))", "as": "cat" },
+              { "filter": "indexof(datum.cat, 'cafes and restaurants') >= 0 || indexof(datum.cat, 'cafe') >= 0" },
               { "calculate": "datum.geometry.coordinates[0]", "as": "lon" },
               { "calculate": "datum.geometry.coordinates[1]", "as": "lat" },
               { "window": [{ "op": "row_number", "as": "rank" }] },
