@@ -15,19 +15,21 @@
   </style>
 </head>
 <body class="main">
-  <h1>Melbourne Cafe Density - Melbourne & Coffee</h1>
+  <h1>Australia's Coffee Culture</h1>
+  <h2 style="margin: 10px;">Australia's 2023 Coffee Imports (Top 10 Partners)</h2>
+  <div style="margin: 10px;" id="trade"></div>
+  <h1>A Closer Look at Australia's Coffee Capital (Melbourne)</h1>
+  <h3>Based on the 2023 Consensus</h3>
   <div id="vis"></div>
   <div id="status">loading…</div>
 
-  <script>
+<script>
   (async () => {
     try {
-      // NOTE: These paths assume index.html sits next to /data/.
-      // If index.html is in a different folder, adjust ('./Assignment2/data/...', etc.)
-    const [mapRes, dataRes] = await Promise.all([
-      fetch('./data/map.json', { cache: 'no-cache' }),
-      fetch('./data/data.json', { cache: 'no-cache' })
-    ]);
+      const [mapRes, dataRes] = await Promise.all([
+        fetch('./map.json'),
+        fetch('./data.json')
+      ]);
 
       if (!mapRes.ok) throw new Error('Failed to load map.json: ' + mapRes.status);
       if (!dataRes.ok) throw new Error('Failed to load data.json: ' + dataRes.status);
@@ -36,18 +38,125 @@
       const poiGeo = await dataRes.json();
 
       const mapFeatures = (mapGeo && mapGeo.type === 'FeatureCollection' && Array.isArray(mapGeo.features)) ? mapGeo.features : [];
-      const poiFeatures = (poiGeo && poiGeo.type === 'FeatureCollection' && Array.isArray(poiGeo.features)) ? poiGeo.features : [];
+      const poiFeaturesRaw = (poiGeo && poiGeo.type === 'FeatureCollection' && Array.isArray(poiGeo.features)) ? poiGeo.features : [];
+
+      // ---------- Helpers ----------
+      const toTitle = (s) =>
+        String(s || '')
+          .toLowerCase()
+          .replace(/\b\w/g, (c) => c.toUpperCase())
+          .trim();
+
+      // Robust postcode extraction
+      const pcFrom = (props = {}) => {
+        const direct =
+          props.postcode ??
+          props.post_code ??
+          props.Postcode ??
+          props.POSTCODE ??
+          props.pc ??
+          props.PC ??
+          null;
+
+        if (direct != null && /^\d{4}$/.test(String(direct))) return String(direct);
+
+        // fall back: 4-digit pattern anywhere in an address string
+        const addr = props.business_address || props.address || props.Address || '';
+        const m = String(addr).match(/\b\d{4}\b/);
+        return m ? m[0] : null;
+      };
+
+      // Suburb extraction:
+      // 1) explicit fields if present
+      // 2) try to parse from address like "... , Carlton VIC 3053" -> Carlton
+      const suburbFrom = (props = {}) => {
+        const direct =
+          props.clue_small_area ??
+          props.suburb ??
+          props.Suburb ??
+          props.SUBURB ??
+          null;
+        if (direct) return toTitle(direct);
+
+        const addr = String(props.business_address || props.address || props.Address || '');
+        // common AU pattern: ", <Suburb> VIC 3xxx"
+        let m = addr.match(/,\s*([A-Za-z \-']+)\s+VIC\b/i);
+        if (m && m[1]) return toTitle(m[1]);
+
+        // fallback: last wordy token before the 4-digit postcode
+        m = addr.match(/([A-Za-z \-']+)\s+\d{4}\b/);
+        if (m && m[1]) return toTitle(m[1]);
+
+        return null;
+      };
+
+      // ---------- Preprocess + Aggregate in JS ----------
+      const rows = [];
+      for (const f of poiFeaturesRaw) {
+        const g = f?.geometry;
+        const p = f?.properties || {};
+        if (!g || g.type !== 'Point' || !Array.isArray(g.coordinates)) continue;
+
+        // Filter: cafés & restaurants only (case-insensitive)
+        const cat = String(p.industry_anzsic4_description || '').trim().toLowerCase();
+        if (!cat.includes('cafes and restaurants')) continue;
+
+        const lon = g.coordinates[0];
+        const lat = g.coordinates[1];
+        if (typeof lon !== 'number' || typeof lat !== 'number') continue;
+
+        const pc = pcFrom(p);
+        if (!pc) continue;
+
+        const sub = suburbFrom(p);
+        rows.push({ pc, sub, lon, lat });
+      }
+
+      // Group by postcode, compute count, mean lon/lat, and mode suburb
+      const byPc = new Map();
+      for (const r of rows) {
+        if (!byPc.has(r.pc)) {
+          byPc.set(r.pc, { pc: r.pc, n: 0, lonSum: 0, latSum: 0, subCounts: new Map() });
+        }
+        const acc = byPc.get(r.pc);
+        acc.n += 1;
+        acc.lonSum += r.lon;
+        acc.latSum += r.lat;
+        const key = r.sub || `Postcode ${r.pc}`;
+        acc.subCounts.set(key, (acc.subCounts.get(key) || 0) + 1);
+      }
+
+      const agg = [];
+      let maxN = 0;
+      for (const acc of byPc.values()) {
+        // mode suburb
+        let label = `Postcode ${acc.pc}`;
+        let maxC = -1;
+        for (const [k, c] of acc.subCounts.entries()) {
+          if (c > maxC) {
+            maxC = c;
+            label = k;
+          }
+        }
+        const lon_mean = acc.lonSum / acc.n;
+        const lat_mean = acc.latSum / acc.n;
+        maxN = Math.max(maxN, acc.n);
+        agg.push({ pc: acc.pc, label, n: acc.n, lon_mean, lat_mean });
+      }
 
       // Status
       const statusEl = document.getElementById('status');
-      statusEl.innerHTML = `Loaded <code>map.json</code>: <b>${mapFeatures.length}</b> features &nbsp;|&nbsp; <code>data.json</code>: <b>${poiFeatures.length}</b> features`;
+      statusEl.innerHTML =
+        `Loaded <code>map.json</code>: <b>${mapFeatures.length}</b> features &nbsp;|&nbsp; `
+        + `<code>data.json</code>: <b>${poiFeaturesRaw.length}</b> features `
+        + `→ Aggregated <b>${agg.length}</b> postcodes (max count <b>${maxN}</b>)`;
 
+      // ---------- Vega-Lite Spec ----------
       const spec = {
         "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
         "width": 1060,
         "height": 1000,
         "background": "#ffffff",
-
         "projection": { "type": "mercator", "center": [144.96, -37.82], "scale": 500000 },
 
         "layer": [
@@ -57,54 +166,91 @@
             "mark": { "type": "geoshape", "fill": null, "stroke": "#111", "strokeWidth": 1 },
             "encoding": { "shape": { "field": "geometry", "type": "geojson" } }
           },
+
+          // ---- Aggregated points (one per postcode)
           {
-            "data": { "values": poiFeatures },
-            "transform": [
+            "data": { "values": agg },
+            "layer": [
               {
-                "filter": "datum.properties && datum.geometry && datum.geometry.type==='Point' && datum.geometry.coordinates"
+                "mark": {
+                  "type": "circle",
+                  "opacity": 0.85,
+                  "stroke": "white",
+                  "strokeWidth": 1,
+                  "blend": "multiply"
+                },
+                "encoding": {
+                  "longitude": { "field": "lon_mean", "type": "quantitative" },
+                  "latitude":  { "field": "lat_mean", "type": "quantitative" },
+                  "size": {
+                    "field": "n",
+                    "type": "quantitative",
+                    "title": "Venues per postcode",
+                    "scale": {
+                      "type": "sqrt",
+                      "domain": [1, Math.max(5, maxN)],
+                      "range": [220, 3200]
+                    }
+                  },
+                  "color": {
+                    "field": "n",
+                    "type": "quantitative",
+                    "title": "Count",
+                    "scale": {
+                      "scheme": "reds",
+                      "domain": [1, Math.max(5, maxN)]
+                    }
+                  },
+                  "tooltip": [
+                    { "field": "pc", "title": "Postcode" },
+                    { "field": "label", "title": "Suburb (mode)" },
+                    { "field": "n", "title": "Cafés/Restaurants" }
+                  ]
+                }
               },
+              // Count label (centered, white)
               {
-                "calculate": "lower(trim(datum.properties.industry_anzsic4_description || ''))",
-                "as": "cat"
+                "mark": {
+                  "type": "text",
+                  "baseline": "middle",
+                  "align": "center",
+                  "fontSize": 11,
+                  "fontWeight": "bold",
+                  "fill": "white"
+                },
+                "encoding": {
+                  "longitude": { "field": "lon_mean", "type": "quantitative" },
+                  "latitude":  { "field": "lat_mean", "type": "quantitative" },
+                  "text": { "field": "n", "type": "quantitative" }
+                }
               },
+              // Suburb label (above the dot, with halo)
               {
-                "filter": "indexof(datum.cat, 'cafes and restaurants') >= 0"
-              },
-              { "calculate": "datum.geometry.coordinates[0]", "as": "lon" },
-              { "calculate": "datum.geometry.coordinates[1]", "as": "lat" },
-              { "window": [{ "op": "row_number", "as": "rank" }] },
-              { "filter": "datum.rank <= 1000" }
-            ],
-            "mark": {
-              "type": "circle",
-              "opacity": 0.5,
-              "color": "#fc4457",
-              "stroke": "white",
-              "strokeWidth": 0.7,
-              "blend": "multiply"
-            },
-            "encoding": {
-              "longitude": { "field": "lon", "type": "quantitative" },
-              "latitude":  { "field": "lat", "type": "quantitative" },
-              "size": {
-                "field": "properties.number_of_seats",
-                "type": "quantitative",
-                "title": "Seats",
-                "scale": { "type": "sqrt", "range": [20, 200] }
-              },
-              "tooltip": [
-                { "field": "properties.trading_name", "title": "Name" },
-                { "field": "properties.business_address", "title": "Address" },
-                { "field": "properties.seating_type", "title": "Seating" },
-                { "field": "properties.number_of_seats", "title": "Seats" }
-              ]
-            }
+                "mark": {
+                  "type": "text",
+                  "baseline": "bottom",
+                  "align": "center",
+                  "dy": -25,
+                  "dx": -10,
+                  "fontSize": 12,
+                  "fontWeight": "bold",
+                  "fill": "#000000",
+                  "stroke": "black",
+                  "strokeWidth": 0.2
+                },
+                "encoding": {
+                  "longitude": { "field": "lon_mean", "type": "quantitative" },
+                  "latitude":  { "field": "lat_mean", "type": "quantitative" },
+                  "text": { "field": "label", "type": "nominal" }
+                }
+              }
+            ]
           }
         ],
         "config": { "view": { "stroke": null } }
       };
 
-      vegaEmbed('#vis', spec, { actions:false }).catch(console.error);
+      vegaEmbed('#vis', spec, { actions: false }).catch(console.error);
 
     } catch (err) {
       console.error(err);
@@ -112,9 +258,118 @@
       div.style.padding = '12px';
       div.style.color = '#b00020';
       div.textContent = 'Error: ' + (err && err.message ? err.message : err);
-      document.getElementById('status').textContent = 'Failed. Check console & Network tab.';
+      const statusEl = document.getElementById('status');
+      if (statusEl) statusEl.textContent = 'Failed. Check console & Network tab.';
     }
   })();
-  </script>
+</script>
+
+
+
+
+
+
+<script>
+  // Remove any other scripts that also call vegaEmbed('#trade', …)
+
+  const tradeSpec = {
+    "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+    "width": 700,
+    "height": 420,
+    "title": "Australia's 2023 Coffee Imports by Partner (Top 10)",
+    "data": { "url": "./trade_data.csv" },
+
+    "params": [
+      {
+        "name": "sliderMin",
+        "value": 0,
+        "bind": { "input": "range", "min": 0, "max": 120000, "step": 5000,
+                  "name": "Min Trade Value (1000 USD): " }
+      }
+    ],
+
+    "transform": [
+      { "calculate": "toNumber(datum['Trade Value 1000USD'])", "as": "TradeValue" },
+      { "calculate": "toNumber(datum['Quantity'])", "as": "Quantity" },
+      { "filter": "isValid(datum.TradeValue) && isFinite(datum.TradeValue)" },
+      { "filter": "isValid(datum.Quantity) && isFinite(datum.Quantity)" },
+      { "filter": "datum.TradeValue >= sliderMin" }
+    ],
+
+    "layer": [
+      /* ---- Bars (colored by TradeValue using 'oranges') ---- */
+      {
+        "mark": { "type": "bar", "cornerRadiusEnd": 3, "tooltip": true },
+        "encoding": {
+          "y": { "field": "Partner", "type": "nominal", "sort": "-x", "title": "Partner Country" },
+          "x": {
+            "field": "TradeValue", "type": "quantitative",
+            "title": "Trade Value (×1000 USD)",
+            "axis": { "format": ",.0f" },
+            "scale": { "domain": [0, 120000] }
+          },
+          "color": {
+            "field": "TradeValue", "type": "quantitative",
+            "title": "Trade Value (×1000 USD)",
+            "scale": { "scheme": "oranges", "domain": [0, 120000] }
+          },
+          "tooltip": [
+            { "field": "Partner", "title": "Partner" },
+            { "field": "TradeValue", "title": "Trade Value (×1000 USD)", "format": "," },
+            { "field": "Quantity", "title": "Quantity (kg)", "format": "," }
+          ]
+        }
+      },
+
+      /* ---- Mean line annotation ---- */
+      {
+        "transform": [
+          { "aggregate": [{ "op": "mean", "field": "TradeValue", "as": "avgTV" }] }
+        ],
+        "mark": { "type": "rule", "strokeDash": [6,4], "strokeWidth": 2, "color": "#333" },
+        "encoding": {
+          "x": { "field": "avgTV", "type": "quantitative", "scale": { "domain": [0, 120000] } }
+        }
+      },
+
+      /* ---- Centered text label: 'Average: {value}' ---- */
+      {
+        "transform": [
+          { "aggregate": [{ "op": "mean", "field": "TradeValue", "as": "avgTV" }] },
+          { "calculate": "'Average: ' + format(datum.avgTV, ',.0f')", "as": "labelText" }
+        ],
+        "mark": {
+          "type": "text",
+          "align": "center",
+          "baseline": "top",
+          "fontWeight": "bold",
+          "fontSize": 13,
+          "color": "#333",
+          "dy":300,
+          "dx":55
+        },
+        "encoding": {
+          "x": { "field": "avgTV", "type": "quantitative", "scale": { "domain": [0, 120000] } },
+          "y": { "value": 0 },                 // near the top of the plot
+          "text": { "field": "labelText", "type": "nominal" }
+        }
+      }
+    ],
+
+    "config": {
+      "view": { "stroke": null },
+      "axis": { "labelFontSize": 12, "titleFontSize": 14 }
+    }
+  };
+
+  // Clear and render
+  const el = document.getElementById('trade');
+  if (el) el.innerHTML = "";
+  vegaEmbed('#trade', tradeSpec, { actions: false }).catch(console.error);
+
+</script>
+
 </body>
 </html>
+
+
