@@ -2,35 +2,260 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>Melbourne Cafés & Parcels (Debug)</title>
+  <title>Australia on Caffeine ☕ — Imports & Melbourne Cafés</title>
+
+  <!-- Vega libs -->
   <script src="https://cdn.jsdelivr.net/npm/vega@5"></script>
   <script src="https://cdn.jsdelivr.net/npm/vega-lite@5"></script>
   <script src="https://cdn.jsdelivr.net/npm/vega-embed@6"></script>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
   <style>
-    html, body { margin:0; padding:0; background:#fafafa; font-family:system-ui, Arial; }
-    #vis { width: 960px; height: 600px; margin: 12px auto 4px; }
-    #status { width: 960px; margin: 0 auto 12px; color:#333; font-size:14px; }
-    code { background:#f0f0f0; padding:2px 4px; border-radius:3px; }
-    .main { text-align: center; }
+    :root{
+      --espresso:#4a2c2a; --mocha:#7a4b3a; --caramel:#b07d62; --latte:#d7b98e;
+      --crema:#f6efe7; --foam:#fff7e9; --ink:#2d1e19; --bean:#8c4c3a;
+    }
+    *{ box-sizing:border-box }
+    html,body{ margin:0; padding:0; background:linear-gradient(180deg,var(--crema),var(--foam)); color:var(--ink) }
+    body{ font-family:Inter,system-ui,Arial,Helvetica,sans-serif; }
+
+    .wrap{ max-width:2020px; margin:0 auto; padding:18px 18px 42px; }
+
+    /* HERO */
+    .hero{ text-align:center; padding: 8px 8px 0; }
+    .hero h1{
+      font-family:"Playfair Display",serif; color:var(--espresso); margin:6px 0 10px;
+      font-size:clamp(28px,4.2vw,44px); letter-spacing:.2px
+    }
+    .hero .sub{ margin:0 auto; max-width:980px; color:var(--mocha); line-height:1.45 }
+
+    /* SECTION CARDS */
+    .section{
+      background:#fff; border:1px solid rgba(74,44,42,.08); border-radius:16px;
+      box-shadow:0 10px 26px rgba(42,20,10,.08), inset 0 1px 0 rgba(255,255,255,.65);
+      margin:16px 0;
+    }
+
+    /* Two-column grids */
+    .grid{
+      display:grid; gap:18px; align-items:start;
+      grid-template-columns: minmax(0, 1.25fr) minmax(0, 0.9fr);
+      padding:14px;
+    }
+    .grid.reverse{
+      grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.25fr);
+    }
+    .viz-col, .text-col{ min-width:0; }
+
+    /* Text */
+    .prose{ max-width: 72ch; overflow-wrap:anywhere; word-break:break-word }
+    .kicker{ color:var(--latte); font-weight:800; letter-spacing:.14em; text-transform:uppercase; font-size:12px }
+    h2{ color:var(--espresso); margin:4px 0 8px; font-size:clamp(18px,2.4vw,24px) }
+    .desc{ color:var(--mocha); margin:8px 0 10px; line-height:1.6 }
+
+    /* Charts */
+    .chart-card{
+      background:#fff; border:1px solid rgba(74,44,42,.06); border-radius:14px;
+      padding:10px; overflow:visible;
+    }
+    .vis{ width:100%; min-height:420px }
+    #vis{ min-height:680px }
+
+    /* Map + rail */
+    .map-grid{
+      display:grid; gap:0; grid-template-columns: minmax(0,1fr) 460px;
+    }
+    .rail{ border-left:1px solid rgba(74,44,42,.08); padding:16px }
+    #status{ margin:10px 14px 14px; color:var(--mocha); font-size:13px; background:#fff; border:1px dashed rgba(122,75,58,.35);
+      padding:8px 10px; border-radius:10px }
+
+    /* Responsive */
+    @media (max-width: 1100px){
+      .grid, .grid.reverse{ grid-template-columns: 1fr; padding:12px }
+      .map-grid{ grid-template-columns: 1fr }
+      .rail{ border-left:none; border-top:1px solid rgba(74,44,42,.08) }
+      .prose{ max-width: 100% }
+    }
+
+    /* Hide any accidental legends */
+    #trade .vega-legend, #unitcost .vega-legend { display: none !important; }
   </style>
 </head>
-<body class="main">
-  <h1>Australia's Coffee Culture</h1>
-  <h2 style="margin: 10px;">Australia's 2023 Coffee Imports (Top 10 Partners)</h2>
-  <div style="margin: 10px;" id="trade"></div>
-  <h1>A Closer Look at Australia's Coffee Capital (Melbourne)</h1>
-  <h3>Based on the 2023 Consensus</h3>
-  <div id="vis"></div>
-  <div id="status">loading…</div>
+<body>
+  <div class="wrap">
+    <header class="hero">
+      <h1>Australia on Caffeine <span aria-hidden="true">☕</span></h1>
+      <p class="sub">
+        Australia’s coffee culture is fiercely independent and quality-obsessed: from post-war espresso bars to third-wave roasters, the flat white, and café-dense inner suburbs. 
+        This visual story traces the pipeline behind that daily ritual—who supplies our beans, what we pay per kilogram, and how Melbourne’s cafés cluster across the city.
+      </p>
+    </header>
 
-<script>
-  (async () => {
-    try {
-      const [mapRes, dataRes] = await Promise.all([
-        fetch('./map.json'),
-        fetch('./data.json')
-      ]);
+    <!-- SECTION 1: Graph left / Text right -->
+    <section class="section">
+      <div class="grid">
+        <div class="viz-col">
+          <div class="chart-card" aria-label="Bar chart for import value by partner">
+            <div class="vis" id="trade"></div>
+          </div>
+        </div>
+        <div class="text-col">
+          <div class="prose">
+            <div class="kicker">Story 01</div>
+            <h2>Who supplies our beans?</h2>
+            <p class="desc" id="value-narrative">
+              Brazil is the clear leader, bringing in about $120M of coffee—almost twice Colombia (about $63M) and roughly three times the overall average (~$37M). Honduras sits right around the average, while Papua New Guinea, Vietnam, and Ethiopia form a solid middle group ($27–33M). India, Nicaragua, Peru, and Guatemala are smaller contributors (about $13–19M each). In short: a few countries drive most of the value, with Brazil far out in front.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
 
+    <!-- SECTION 2: Text left / Graph right -->
+    <section class="section">
+      <div class="grid reverse">
+        <div class="text-col">
+          <div class="prose">
+            <div class="kicker">Story 02</div>
+            <h2>What do we pay per kilogram?</h2>
+            <p class="desc" id="unitcost-narrative">
+              The chart ranks countries by coffee price per kg. The average is about $4.84/kg. Guatemala is the most expensive at roughly $6.1/kg, with Colombia and Peru also high around $5.6–$5.9. Honduras is near the average. Brazil and Papua New Guinea are a bit cheaper at about $4.4–$4.6. India (~$3.5) and Vietnam (~$2.6–$2.7) are the lowest-cost suppliers.
+            </p>
+          </div>
+        </div>
+        <div class="viz-col">
+          <div class="chart-card" aria-label="Bar chart for unit cost by partner">
+            <div class="vis" id="unitcost"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 3: Full map with right rail text -->
+    <section class="section">
+      <div class="map-grid">
+        <div class="viz-col" style="padding:10px;">
+          <div class="chart-card" aria-label="Map of Melbourne cafés by postcode" style="border:none; padding:0;">
+            <div class="vis" id="vis"></div>
+            <div id="status">brewing…</div>
+          </div>
+        </div>
+
+        <aside class="rail text-col">
+          <div class="prose">
+            <div class="kicker">Story 03</div>
+            <h2>Where does Melbourne’s café scene cluster?</h2>
+            <p class="desc" id="map-narrative">
+              Melbourne (CBD) is the standout hotspot with ~870 venues. The next clusters are Carlton (~170), Docklands (~150) and Southbank (~120). Surrounding suburbs are far quieter: North Melbourne (~80), West Melbourne (~40), East Melbourne (~27) and Melbourne (Remainder, ~31), with Port Melbourne (~15), South Yarra (~8) and Parkville only single-digit counts. In short, the café scene is heavily centered on the CBD, tapering quickly with distance from it.
+            </p>
+          </div>
+        </aside>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    // Shared coffee palette
+    const COFFEE_RANGE = ["#d9c8b5","#b89374","#925c3f","#6b341c","#491e0e","#2b1107","#0f0703"];
+
+
+
+    // ---- Chart specs (responsive, legends off) ----
+    const tradeSpec = {
+      "$schema":"https://vega.github.io/schema/vega-lite/v5.json",
+      "autosize": {"type":"fit", "contains":"padding"},
+      "width": "container", "height": 420,
+      "data": { "url": "./trade_data.csv" },
+      "params":[{"name":"sliderMin","value":0,"bind":{
+        "input":"range","min":0,"max":120000,"step":5000,"name":"Min Trade Value (×1000 USD): "
+      }}],
+      "transform":[
+        {"calculate":"toNumber(datum['Trade Value 1000USD'])","as":"TradeValue"},
+        {"calculate":"toNumber(datum['Quantity'])","as":"Quantity"},
+        {"filter":"isValid(datum.TradeValue) && isFinite(datum.TradeValue)"},
+        {"filter":"isValid(datum.Quantity) && isFinite(datum.Quantity)"},
+        {"filter":"datum.TradeValue >= sliderMin"}
+      ],
+      "layer":[
+        {"mark":{"type":"bar","cornerRadiusEnd":4,"tooltip":true},
+         "encoding":{
+           "y":{"field":"Partner","type":"nominal","sort":"-x","title":"Partner Country"},
+           "x":{"field":"TradeValue","type":"quantitative","title":"Trade Value (×1000 USD)","axis":{"format":",.0f"},"scale":{"domain":[0,120000]}},
+           "color":{"field":"TradeValue","type":"quantitative","scale":{"range":COFFEE_RANGE,"domain":[0,120000]},"legend": null},
+           "tooltip":[
+             {"field":"Partner","title":"Partner"},
+             {"field":"TradeValue","title":"Trade Value (×1000 USD)","format":","},
+             {"field":"Quantity","title":"Quantity (kg)","format":","}
+           ]
+         }},
+        {"transform":[{"aggregate":[{"op":"mean","field":"TradeValue","as":"avgTV"}]}],
+         "mark":{"type":"rule","strokeDash":[6,4],"strokeWidth":2,"color":"#4a2c2a"},
+         "encoding":{"x":{"field":"avgTV","type":"quantitative"}}},
+        {"transform":[
+            {"aggregate":[{"op":"mean","field":"TradeValue","as":"avgTV"}]},
+            {"calculate":"'Avg: ' + format(datum.avgTV, ',.0f')","as":"labelText"}],
+         "mark":{"type":"text","align":"center","baseline":"top","fontWeight":"bold","fontSize":12,"color":"#4a2c2a","dy":300,"dx":40},
+         "encoding":{"x":{"field":"avgTV","type":"quantitative"},"y":{"value":0},"text":{"field":"labelText","type":"nominal"}}}
+      ],
+      "config":{"legend":{"disable":true},"view":{"stroke":null},"axis":{"labelFont":"Inter","titleFont":"Inter","labelColor":"#4a2c2a","titleColor":"#4a2c2a"}}
+    };
+
+    const unitCostSpec = {
+      "$schema":"https://vega.github.io/schema/vega-lite/v5.json",
+      "autosize": {"type":"fit", "contains":"padding"},
+      "width": "container", "height": 420,
+      "data": { "url": "./trade_data.csv" },
+      "params":[{"name":"sliderMin","value":0,"bind":{
+        "input":"range","min":0,"max":120000,"step":5000,"name":"Min Trade Value (×1000 USD): "
+      }}],
+      "transform":[
+        {"calculate":"toNumber(datum['Trade Value 1000USD'])","as":"TradeValueK"},
+        {"calculate":"toNumber(datum['Quantity'])","as":"Quantity"},
+        {"filter":"isValid(datum.TradeValueK) && isFinite(datum.TradeValueK)"},
+        {"filter":"isValid(datum.Quantity) && isFinite(datum.Quantity) && datum.Quantity > 0"},
+        {"filter":"datum.TradeValueK >= sliderMin"},
+        {"calculate":"(datum.TradeValueK * 1000) / datum.Quantity","as":"UnitCostUSDperKG"}
+      ],
+      "layer":[
+        {"mark":{"type":"bar","cornerRadiusEnd":4,"tooltip":true},
+         "encoding":{
+           "y":{"field":"Partner","type":"nominal","sort":"-x","title":"Partner Country"},
+           "x":{"field":"UnitCostUSDperKG","type":"quantitative","title":"Unit Cost (USD/kg)","axis":{"format":".2f"}},
+           "color":{"field":"UnitCostUSDperKG","type":"quantitative","scale":{"range":COFFEE_RANGE},"legend": null},
+           "tooltip":[
+             {"field":"Partner","title":"Partner"},
+             {"field":"UnitCostUSDperKG","title":"Unit Cost (USD/kg)","format":".2f"},
+             {"field":"TradeValueK","title":"Trade Value (×1000 USD)","format":","},
+             {"field":"Quantity","title":"Quantity (kg)","format":","}
+           ]
+         }},
+        {"transform":[{"aggregate":[{"op":"mean","field":"UnitCostUSDperKG","as":"avgUC"}]}],
+         "mark":{"type":"rule","strokeDash":[6,4],"strokeWidth":2,"color":"#4a2c2a"},
+         "encoding":{"x":{"field":"avgUC","type":"quantitative"}}},
+        {"transform":[
+            {"aggregate":[{"op":"mean","field":"UnitCostUSDperKG","as":"avgUC"}]},
+            {"calculate":"'Avg: ' + format(datum.avgUC, '.2f') + ' USD/kg'","as":"labelText"}],
+         "mark":{"type":"text","align":"center","baseline":"top","fontWeight":"bold","fontSize":12,"color":"#4a2c2a","dy":300,"dx":40},
+         "encoding":{"x":{"field":"avgUC","type":"quantitative"},"y":{"value":0},"text":{"field":"labelText","type":"nominal"}}}
+      ],
+      "config":{"legend":{"disable":true},"view":{"stroke":null},"axis":{"labelFont":"Inter","titleFont":"Inter","labelColor":"#4a2c2a","titleColor":"#4a2c2a"}}
+    };
+  </script>
+
+  <!-- Embed charts + Map preprocessing -->
+  <script>
+    (async () => {
+      // Embed charts
+      document.getElementById('trade').innerHTML = "";
+      document.getElementById('unitcost').innerHTML = "";
+      await vegaEmbed('#trade', tradeSpec,   { actions:false });
+      await vegaEmbed('#unitcost', unitCostSpec, { actions:false });
+
+      // ----- Map preprocessing -----
+      const [mapRes, dataRes] = await Promise.all([ fetch('./map.json'), fetch('./data.json') ]);
       if (!mapRes.ok) throw new Error('Failed to load map.json: ' + mapRes.status);
       if (!dataRes.ok) throw new Error('Failed to load data.json: ' + dataRes.status);
 
@@ -40,336 +265,82 @@
       const mapFeatures = (mapGeo && mapGeo.type === 'FeatureCollection' && Array.isArray(mapGeo.features)) ? mapGeo.features : [];
       const poiFeaturesRaw = (poiGeo && poiGeo.type === 'FeatureCollection' && Array.isArray(poiGeo.features)) ? poiGeo.features : [];
 
-      // ---------- Helpers ----------
-      const toTitle = (s) =>
-        String(s || '')
-          .toLowerCase()
-          .replace(/\b\w/g, (c) => c.toUpperCase())
-          .trim();
-
-      // Robust postcode extraction
-      const pcFrom = (props = {}) => {
-        const direct =
-          props.postcode ??
-          props.post_code ??
-          props.Postcode ??
-          props.POSTCODE ??
-          props.pc ??
-          props.PC ??
-          null;
-
-        if (direct != null && /^\d{4}$/.test(String(direct))) return String(direct);
-
-        // fall back: 4-digit pattern anywhere in an address string
-        const addr = props.business_address || props.address || props.Address || '';
-        const m = String(addr).match(/\b\d{4}\b/);
-        return m ? m[0] : null;
+      const toTitle = (s) => String(s||'').toLowerCase().replace(/\b\w/g,c=>c.toUpperCase()).trim();
+      const pcFrom = (p={})=>{
+        const direct=p.postcode??p.post_code??p.Postcode??p.POSTCODE??p.pc??p.PC??null;
+        if(direct!=null && /^\d{4}$/.test(String(direct))) return String(direct);
+        const addr=p.business_address||p.address||p.Address||''; const m=String(addr).match(/\b\d{4}\b/); return m?m[0]:null;
+      };
+      const suburbFrom = (p={})=>{
+        const direct=p.clue_small_area??p.suburb??p.Suburb??p.SUBURB??null; if(direct) return toTitle(direct);
+        const addr=String(p.business_address||p.address||p.Address||'');
+        let m=addr.match(/,\s*([A-Za-z \-']+)\s+VIC\b/i); if(m&&m[1]) return toTitle(m[1]);
+        m=addr.match(/([A-Za-z \-']+)\s+\d{4}\b/); if(m&&m[1]) return toTitle(m[1]); return null;
       };
 
-      // Suburb extraction:
-      // 1) explicit fields if present
-      // 2) try to parse from address like "... , Carlton VIC 3053" -> Carlton
-      const suburbFrom = (props = {}) => {
-        const direct =
-          props.clue_small_area ??
-          props.suburb ??
-          props.Suburb ??
-          props.SUBURB ??
-          null;
-        if (direct) return toTitle(direct);
-
-        const addr = String(props.business_address || props.address || props.Address || '');
-        // common AU pattern: ", <Suburb> VIC 3xxx"
-        let m = addr.match(/,\s*([A-Za-z \-']+)\s+VIC\b/i);
-        if (m && m[1]) return toTitle(m[1]);
-
-        // fallback: last wordy token before the 4-digit postcode
-        m = addr.match(/([A-Za-z \-']+)\s+\d{4}\b/);
-        if (m && m[1]) return toTitle(m[1]);
-
-        return null;
-      };
-
-      // ---------- Preprocess + Aggregate in JS ----------
-      const rows = [];
-      for (const f of poiFeaturesRaw) {
-        const g = f?.geometry;
-        const p = f?.properties || {};
-        if (!g || g.type !== 'Point' || !Array.isArray(g.coordinates)) continue;
-
-        // Filter: cafés & restaurants only (case-insensitive)
-        const cat = String(p.industry_anzsic4_description || '').trim().toLowerCase();
-        if (!cat.includes('cafes and restaurants')) continue;
-
-        const lon = g.coordinates[0];
-        const lat = g.coordinates[1];
-        if (typeof lon !== 'number' || typeof lat !== 'number') continue;
-
-        const pc = pcFrom(p);
-        if (!pc) continue;
-
-        const sub = suburbFrom(p);
-        rows.push({ pc, sub, lon, lat });
+      const rowsPoi=[];
+      for(const f of poiFeaturesRaw){
+        const g=f?.geometry, p=f?.properties||{}; if(!g||g.type!=='Point'||!Array.isArray(g.coordinates)) continue;
+        const cat=String(p.industry_anzsic4_description||'').trim().toLowerCase(); if(!cat.includes('cafes and restaurants')) continue;
+        const [lon,lat]=g.coordinates; if(typeof lon!=='number'||typeof lat!=='number') continue;
+        const pc=pcFrom(p); if(!pc) continue; const sub=suburbFrom(p);
+        rowsPoi.push({pc,sub,lon,lat});
       }
 
-      // Group by postcode, compute count, mean lon/lat, and mode suburb
-      const byPc = new Map();
-      for (const r of rows) {
-        if (!byPc.has(r.pc)) {
-          byPc.set(r.pc, { pc: r.pc, n: 0, lonSum: 0, latSum: 0, subCounts: new Map() });
-        }
-        const acc = byPc.get(r.pc);
-        acc.n += 1;
-        acc.lonSum += r.lon;
-        acc.latSum += r.lat;
-        const key = r.sub || `Postcode ${r.pc}`;
-        acc.subCounts.set(key, (acc.subCounts.get(key) || 0) + 1);
+      const byPc=new Map();
+      for(const r of rowsPoi){
+        if(!byPc.has(r.pc)) byPc.set(r.pc,{pc:r.pc,n:0,lonSum:0,latSum:0,subCounts:new Map()});
+        const a=byPc.get(r.pc);
+        a.n+=1; a.lonSum+=r.lon; a.latSum+=r.lat;
+        const key=r.sub||`Postcode ${r.pc}`; a.subCounts.set(key,(a.subCounts.get(key)||0)+1);
       }
 
-      const agg = [];
-      let maxN = 0;
-      for (const acc of byPc.values()) {
-        // mode suburb
-        let label = `Postcode ${acc.pc}`;
-        let maxC = -1;
-        for (const [k, c] of acc.subCounts.entries()) {
-          if (c > maxC) {
-            maxC = c;
-            label = k;
-          }
-        }
-        const lon_mean = acc.lonSum / acc.n;
-        const lat_mean = acc.latSum / acc.n;
-        maxN = Math.max(maxN, acc.n);
-        agg.push({ pc: acc.pc, label, n: acc.n, lon_mean, lat_mean });
+      const agg=[]; let maxN=0;
+      for(const a of byPc.values()){
+        let label=`Postcode ${a.pc}`, maxC=-1;
+        for(const [k,c] of a.subCounts.entries()){ if(c>maxC){ maxC=c; label=k; } }
+        const lon_mean=a.lonSum/a.n, lat_mean=a.latSum/a.n; maxN=Math.max(maxN,a.n);
+        agg.push({pc:a.pc,label,n:a.n,lon_mean,lat_mean});
       }
 
-      // Status
-      const statusEl = document.getElementById('status');
-      statusEl.innerHTML =
-        `Loaded <code>map.json</code>: <b>${mapFeatures.length}</b> features &nbsp;|&nbsp; `
+      const statusEl=document.getElementById('status');
+      statusEl.innerHTML = `Loaded <code>map.json</code>: <b>${mapFeatures.length}</b> features &nbsp;|&nbsp; `
         + `<code>data.json</code>: <b>${poiFeaturesRaw.length}</b> features `
-        + `→ Aggregated <b>${agg.length}</b> postcodes (max count <b>${maxN}</b>)`;
+        + `→ Aggregated <b>${agg.length}</b> postcodes (max <b>${maxN}</b>)`;
 
-      // ---------- Vega-Lite Spec ----------
-      const spec = {
-        "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
-        "width": 1060,
-        "height": 1000,
-        "background": "#ffffff",
-        "projection": { "type": "mercator", "center": [144.96, -37.82], "scale": 500000 },
+      // Map spec (darker, more readable bubble text)
+      const mapSpec={
+        "$schema":"https://vega.github.io/schema/vega-lite/v5.json",
+        "autosize": {"type":"fit", "contains":"padding"},
+        "width":"container","height": 620,"background":"#ffffff",
+        "projection":{"type":"mercator","center":[144.96,-37.82],"scale":500000},
+        "layer":[
+          {"data":{"sphere":true},"mark":{"type":"geoshape","fill":"#fff7e9"}},
+          {"data":{"values":mapFeatures},"mark":{"type":"geoshape","fill":null,"stroke":"#5b3a2e","strokeWidth":1},
+           "encoding":{"shape":{"field":"geometry","type":"geojson"}}},
+          {"data":{"values":agg},"layer":[
+            {"mark":{"type":"circle","opacity":0.9,"stroke":"#ffffff","strokeWidth":1,"blend":"multiply"},
+             "encoding":{
+               "longitude":{"field":"lon_mean","type":"quantitative"},
+               "latitude":{"field":"lat_mean","type":"quantitative"},
+               "size":{"field":"n","type":"quantitative","title":"Venues per postcode","scale":{"type":"sqrt","domain":[1,Math.max(5,maxN)],"range":[220,3200]}},
+               "color":{"field":"n","type":"quantitative","title":"Count","scale":{"range":COFFEE_RANGE,"domain":[1,Math.max(5,maxN)]}},
+               "tooltip":[{"field":"pc","title":"Postcode"},{"field":"label","title":"Suburb (mode)"},{"field":"n","title":"Cafés/Restaurants"}]
+             }},
+            /* Darker count labels with light halo */
+            {"mark":{"type":"text","baseline":"middle","align":"center","fontSize":14,"fontWeight":"bold","fill":"#ffffff","stroke":"#1d110e","strokeWidth":0.1},
 
-        "layer": [
-          { "data": { "sphere": true }, "mark": { "type": "geoshape", "fill": "#eef6fb" } },
-          {
-            "data": { "values": mapFeatures },
-            "mark": { "type": "geoshape", "fill": null, "stroke": "#111", "strokeWidth": 1 },
-            "encoding": { "shape": { "field": "geometry", "type": "geojson" } }
-          },
-
-          // ---- Aggregated points (one per postcode)
-          {
-            "data": { "values": agg },
-            "layer": [
-              {
-                "mark": {
-                  "type": "circle",
-                  "opacity": 0.85,
-                  "stroke": "white",
-                  "strokeWidth": 1,
-                  "blend": "multiply"
-                },
-                "encoding": {
-                  "longitude": { "field": "lon_mean", "type": "quantitative" },
-                  "latitude":  { "field": "lat_mean", "type": "quantitative" },
-                  "size": {
-                    "field": "n",
-                    "type": "quantitative",
-                    "title": "Venues per postcode",
-                    "scale": {
-                      "type": "sqrt",
-                      "domain": [1, Math.max(5, maxN)],
-                      "range": [220, 3200]
-                    }
-                  },
-                  "color": {
-                    "field": "n",
-                    "type": "quantitative",
-                    "title": "Count",
-                    "scale": {
-                      "scheme": "reds",
-                      "domain": [1, Math.max(5, maxN)]
-                    }
-                  },
-                  "tooltip": [
-                    { "field": "pc", "title": "Postcode" },
-                    { "field": "label", "title": "Suburb (mode)" },
-                    { "field": "n", "title": "Cafés/Restaurants" }
-                  ]
-                }
-              },
-              // Count label (centered, white)
-              {
-                "mark": {
-                  "type": "text",
-                  "baseline": "middle",
-                  "align": "center",
-                  "fontSize": 11,
-                  "fontWeight": "bold",
-                  "fill": "white"
-                },
-                "encoding": {
-                  "longitude": { "field": "lon_mean", "type": "quantitative" },
-                  "latitude":  { "field": "lat_mean", "type": "quantitative" },
-                  "text": { "field": "n", "type": "quantitative" }
-                }
-              },
-              // Suburb label (above the dot, with halo)
-              {
-                "mark": {
-                  "type": "text",
-                  "baseline": "bottom",
-                  "align": "center",
-                  "dy": -25,
-                  "dx": -10,
-                  "fontSize": 12,
-                  "fontWeight": "bold",
-                  "fill": "#000000",
-                  "stroke": "black",
-                  "strokeWidth": 0.2
-                },
-                "encoding": {
-                  "longitude": { "field": "lon_mean", "type": "quantitative" },
-                  "latitude":  { "field": "lat_mean", "type": "quantitative" },
-                  "text": { "field": "label", "type": "nominal" }
-                }
-              }
-            ]
-          }
+             "encoding":{"longitude":{"field":"lon_mean","type":"quantitative"},"latitude":{"field":"lat_mean","type":"quantitative"},"text":{"field":"n","type":"quantitative"}}},
+            /* Suburb labels slightly larger and haloed */
+            {"mark":{"type":"text","baseline":"bottom","align":"center","dy":-25,"dx":-10,"fontSize":13,"fontWeight":"bold","fill":"#1d110e","stroke":"#ffffff","strokeWidth":0.1},
+             "encoding":{"longitude":{"field":"lon_mean","type":"quantitative"},"latitude":{"field":"lat_mean","type":"quantitative"},"text":{"field":"label","type":"nominal"}}}
+          ]}
         ],
-        "config": { "view": { "stroke": null } }
+        "config":{"view":{"stroke":null},"axis":{"labelFont":"Inter","titleFont":"Inter"}}
       };
 
-      vegaEmbed('#vis', spec, { actions: false }).catch(console.error);
-
-    } catch (err) {
-      console.error(err);
-      const div = document.getElementById('vis');
-      div.style.padding = '12px';
-      div.style.color = '#b00020';
-      div.textContent = 'Error: ' + (err && err.message ? err.message : err);
-      const statusEl = document.getElementById('status');
-      if (statusEl) statusEl.textContent = 'Failed. Check console & Network tab.';
-    }
-  })();
-</script>
-
-
-
-
-
-
-<script>
-  // Remove any other scripts that also call vegaEmbed('#trade', …)
-
-  const tradeSpec = {
-    "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
-    "width": 700,
-    "height": 420,
-    "title": "Australia's 2023 Coffee Imports by Partner (Top 10)",
-    "data": { "url": "./trade_data.csv" },
-
-    "params": [
-      {
-        "name": "sliderMin",
-        "value": 0,
-        "bind": { "input": "range", "min": 0, "max": 120000, "step": 5000,
-                  "name": "Min Trade Value (1000 USD): " }
-      }
-    ],
-
-    "transform": [
-      { "calculate": "toNumber(datum['Trade Value 1000USD'])", "as": "TradeValue" },
-      { "calculate": "toNumber(datum['Quantity'])", "as": "Quantity" },
-      { "filter": "isValid(datum.TradeValue) && isFinite(datum.TradeValue)" },
-      { "filter": "isValid(datum.Quantity) && isFinite(datum.Quantity)" },
-      { "filter": "datum.TradeValue >= sliderMin" }
-    ],
-
-    "layer": [
-      /* ---- Bars (colored by TradeValue using 'oranges') ---- */
-      {
-        "mark": { "type": "bar", "cornerRadiusEnd": 3, "tooltip": true },
-        "encoding": {
-          "y": { "field": "Partner", "type": "nominal", "sort": "-x", "title": "Partner Country" },
-          "x": {
-            "field": "TradeValue", "type": "quantitative",
-            "title": "Trade Value (×1000 USD)",
-            "axis": { "format": ",.0f" },
-            "scale": { "domain": [0, 120000] }
-          },
-          "color": {
-            "field": "TradeValue", "type": "quantitative",
-            "title": "Trade Value (×1000 USD)",
-            "scale": { "scheme": "oranges", "domain": [0, 120000] }
-          },
-          "tooltip": [
-            { "field": "Partner", "title": "Partner" },
-            { "field": "TradeValue", "title": "Trade Value (×1000 USD)", "format": "," },
-            { "field": "Quantity", "title": "Quantity (kg)", "format": "," }
-          ]
-        }
-      },
-
-      /* ---- Mean line annotation ---- */
-      {
-        "transform": [
-          { "aggregate": [{ "op": "mean", "field": "TradeValue", "as": "avgTV" }] }
-        ],
-        "mark": { "type": "rule", "strokeDash": [6,4], "strokeWidth": 2, "color": "#333" },
-        "encoding": {
-          "x": { "field": "avgTV", "type": "quantitative", "scale": { "domain": [0, 120000] } }
-        }
-      },
-
-      /* ---- Centered text label: 'Average: {value}' ---- */
-      {
-        "transform": [
-          { "aggregate": [{ "op": "mean", "field": "TradeValue", "as": "avgTV" }] },
-          { "calculate": "'Average: ' + format(datum.avgTV, ',.0f')", "as": "labelText" }
-        ],
-        "mark": {
-          "type": "text",
-          "align": "center",
-          "baseline": "top",
-          "fontWeight": "bold",
-          "fontSize": 13,
-          "color": "#333",
-          "dy":300,
-          "dx":55
-        },
-        "encoding": {
-          "x": { "field": "avgTV", "type": "quantitative", "scale": { "domain": [0, 120000] } },
-          "y": { "value": 0 },                 // near the top of the plot
-          "text": { "field": "labelText", "type": "nominal" }
-        }
-      }
-    ],
-
-    "config": {
-      "view": { "stroke": null },
-      "axis": { "labelFontSize": 12, "titleFontSize": 14 }
-    }
-  };
-
-  // Clear and render
-  const el = document.getElementById('trade');
-  if (el) el.innerHTML = "";
-  vegaEmbed('#trade', tradeSpec, { actions: false }).catch(console.error);
-
-</script>
-
+      await vegaEmbed('#vis', mapSpec, { actions:false });
+    })();
+  </script>
 </body>
 </html>
-
-
