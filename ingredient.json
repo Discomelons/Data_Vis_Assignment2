@@ -1,0 +1,13 @@
+[
+  { "drink": "Flat White", "part": "Espresso", "value": 33 },
+  { "drink": "Flat White", "part": "Steamed milk", "value": 64 },
+  { "drink": "Flat White", "part": "Foam (thin cap)", "value": 3 },
+
+  { "drink": "Cappuccino", "part": "Espresso", "value": 33 },
+  { "drink": "Cappuccino", "part": "Steamed milk", "value": 33 },
+  { "drink": "Cappuccino", "part": "Foam", "value": 34 },
+
+  { "drink": "Caffé Latté", "part": "Espresso", "value": 12 },
+  { "drink": "Caffé Latté", "part": "Steamed milk", "value": 78 },
+  { "drink": "Caffé Latté", "part": "Foam (~1 cm)", "value": 10 }
+]

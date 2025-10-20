@@ -82,6 +82,14 @@
 
     /* Hide any accidental legends */
     #trade .vega-legend, #unitcost .vega-legend { display: none !important; }
+
+    /* Donut row (3 across, no text) */
+    .donut-row{
+      display:grid; gap:18px; grid-template-columns: repeat(3, minmax(0,1fr));
+    }
+    @media (max-width: 900px){
+      .donut-row{ grid-template-columns: 1fr }
+    }
   </style>
 </head>
 <body>
@@ -93,6 +101,15 @@
         This visual story traces the pipeline behind that daily ritual—who supplies our beans, what we pay per kilogram, and how Melbourne’s cafés cluster across the city.
       </p>
     </header>
+
+    <!-- SECTION 4: Donut chart trio (no text on charts) -->
+    <section class="section" id="donuts">
+      <div class="donut-row">
+        <div class="vis" id="donut-flat"></div>
+        <div class="vis" id="donut-capp"></div>
+        <div class="vis" id="donut-latte"></div>
+      </div>
+    </section>
 
     <!-- SECTION 1: Graph left / Text right -->
     <section class="section">
@@ -157,11 +174,10 @@
     </section>
   </div>
 
+  <!-- All JS consolidated at the end so elements exist before embedding -->
   <script>
-    // Shared coffee palette
+    // ---------- Globals (define before any spec uses them) ----------
     const COFFEE_RANGE = ["#d9c8b5","#b89374","#925c3f","#6b341c","#491e0e","#2b1107","#0f0703"];
-
-
 
     // ---- Chart specs (responsive, legends off) ----
     const tradeSpec = {
@@ -243,16 +259,480 @@
       ],
       "config":{"legend":{"disable":true},"view":{"stroke":null},"axis":{"labelFont":"Inter","titleFont":"Inter","labelColor":"#4a2c2a","titleColor":"#4a2c2a"}}
     };
+
+    // ---- Donut specs (no text/legend/tooltip) reading from ./ingredient.json ----
+// ---- Donut specs WITH titles + hover tooltips ----
+    const donutFlatSpec = {
+      "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+      "title": { "text": "Flat White", "font": "Inter", "fontWeight": "700", "color": "#4a2c2a", "anchor": "start", "offset": 8 },
+      "autosize": {"type":"fit","contains":"padding"},
+      "width": "container", "height": 240, "background":"#ffffff",
+      "data": { "url": "./ingredient.json" },
+      "transform": [
+        { "filter": "datum.drink === 'Flat White'" },
+        { "joinaggregate": [{ "op": "sum", "field": "value", "as": "total" }] },
+        { "calculate": "datum.value / datum.total * 100", "as": "pct" }
+      ],
+      "mark": { "type": "arc", "innerRadius": 70, "cornerRadius": 4, "tooltip": true },
+      "encoding": {
+        "theta": { "field": "value", "type": "quantitative" },
+        "color": {
+          "field": "part", "type": "nominal",
+          "scale": { "range": COFFEE_RANGE.slice(2,7) },
+          "legend": null
+        },
+        "tooltip": [
+          { "field": "part",  "title": "Component" },
+          { "field": "value", "title": "Share", "format": ".0f" },
+          { "field": "pct",   "title": "Percent", "format": ".1f" }
+        ]
+      },
+      "config": { "view": { "stroke": null }, "arc": { "stroke": "#fff", "strokeWidth": 1 } }
+    };
+
+    const donutCappSpec = {
+      "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+      "title": { "text": "Cappuccino", "font": "Inter", "fontWeight": "700", "color": "#4a2c2a", "anchor": "start", "offset": 8 },
+      "autosize": {"type":"fit","contains":"padding"},
+      "width": "container", "height": 240, "background":"#ffffff",
+      "data": { "url": "./ingredient.json" },
+      "transform": [
+        { "filter": "datum.drink === 'Cappuccino'" },
+        { "joinaggregate": [{ "op": "sum", "field": "value", "as": "total" }] },
+        { "calculate": "datum.value / datum.total * 100", "as": "pct" }
+      ],
+      "mark": { "type": "arc", "innerRadius": 70, "cornerRadius": 4, "tooltip": true },
+      "encoding": {
+        "theta": { "field": "value", "type": "quantitative" },
+        "color": {
+          "field": "part", "type": "nominal",
+          "scale": { "range": COFFEE_RANGE.slice(2,7) },
+          "legend": null
+        },
+        "tooltip": [
+          { "field": "part",  "title": "Component" },
+          { "field": "value", "title": "Share", "format": ".0f" },
+          { "field": "pct",   "title": "Percent", "format": ".1f" }
+        ]
+      },
+      "config": { "view": { "stroke": null }, "arc": { "stroke": "#fff", "strokeWidth": 1 } }
+    };
+
+    const donutLatteSpec = {
+      "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+      "title": { "text": "Caffé Latté", "font": "Inter", "fontWeight": "700", "color": "#4a2c2a", "anchor": "start", "offset": 8 },
+      "autosize": {"type":"fit","contains":"padding"},
+      "width": "container", "height": 240, "background":"#ffffff",
+      "data": { "url": "./ingredient.json" },
+      "transform": [
+        { "filter": "datum.drink === 'Caffé Latté'" },
+        { "joinaggregate": [{ "op": "sum", "field": "value", "as": "total" }] },
+        { "calculate": "datum.value / datum.total * 100", "as": "pct" }
+      ],
+      "mark": { "type": "arc", "innerRadius": 70, "cornerRadius": 4, "tooltip": true },
+      "encoding": {
+        "theta": { "field": "value", "type": "quantitative" },
+        "color": {
+          "field": "part", "type": "nominal",
+          "scale": { "range": COFFEE_RANGE.slice(2,7) },
+          "legend": null
+        },
+        "tooltip": [
+          { "field": "part",  "title": "Component" },
+          { "field": "value", "title": "Share", "format": ".0f" },
+          { "field": "pct",   "title": "Percent", "format": ".1f" }
+        ]
+      },
+      "config": { "view": { "stroke": null }, "arc": { "stroke": "#fff", "strokeWidth": 1 } }
+    };
+
   </script>
 
-  <!-- Embed charts + Map preprocessing -->
+
+  <section class="section" id="barista-frequency">
+    <div class="grid">
+      <div class="viz-col">
+        <div class="chart-card" aria-label="Normalised stacked bar showing barista-coffee purchase frequency">
+          <div class="vis" id="chart-stacked"></div>
+        </div>
+      </div>
+      <div class="text-col">
+        <div class="prose">
+          <div class="kicker">Survey</div>
+          <h2>How often do you purchase coffee made by a barista?</h2>
+          <p class="desc">
+            Respondents most commonly buy barista-made coffee a few times a week, followed by about once a week. The bar shows the share of all responses adding up to 100%.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+<script>
+(async () => {
+  // --- load data (with fallback) ---
+  let values;
+  try {
+    const res = await fetch('./stacked.json', { cache: 'no-store' });
+    if (!res.ok) throw new Error();
+    values = await res.json();
+  } catch {
+    values = [
+      { "frequency": "Less than once a month", "percent": 8 },
+      { "frequency": "Around once a month",    "percent": 7 },
+      { "frequency": "A few times a month",    "percent": 12 },
+      { "frequency": "About once a week",      "percent": 23 },
+      { "frequency": "A few times a week",     "percent": 39 },
+      { "frequency": "Every day",              "percent": 11 }
+    ];
+  }
+
+  // --- measure container for a fixed numeric width (prevents squeeze) ---
+  const container = document.querySelector('#chart-stacked');
+  const measuredWidth = Math.max(600, Math.floor(container?.getBoundingClientRect?.().width || 800));
+
+  const stackedSpec = {
+    $schema: "https://vega.github.io/schema/vega-lite/v5.json",
+    autosize: { type: "none" },
+    width: measuredWidth,
+    height: 170,
+    padding: { left: 10, right: 10, top: 8, bottom: 46 },
+
+    data: { values },
+    transform: [
+      { calculate: "toNumber(datum.percent)", as: "percent" },
+      { calculate: "'All respondents'", as: "group" },
+      {
+        calculate:
+          "indexof(['Less than once a month','Around once a month','A few times a month','About once a week','A few times a week','Every day'], datum.frequency)",
+        as: "ord"
+      },
+      { calculate: "datum.percent + '%'", as: "labelPercent" }
+    ],
+
+    layer: [
+      /* bars */
+      {
+        mark: { type: "bar" },
+        encoding: {
+          y: { field: "group", type: "nominal", axis: null, scale: { paddingInner: 0.15 } },
+          x: {
+            field: "percent", type: "quantitative", stack: "normalize",
+            title: "Percent", axis: { format: ".0%" }, scale: { domain: [0, 1] }
+          },
+          color: {
+            field: "frequency", type: "nominal", title: null,
+            scale: {
+              domain: [
+                "Less than once a month","Around once a month","A few times a month",
+                "About once a week","A few times a week","Every day"
+              ],
+              range: ["#ffb3b3","#ffe48a","#fff7c7","#cfd7d2","#9eb4aa","#6f887d"]
+            },
+            legend: { orient: "bottom", direction: "horizontal", columns: 3 }
+          },
+          order: { field: "ord", type: "ordinal" },
+          tooltip: [
+            { field: "frequency", title: "Frequency" },
+            { field: "percent",   title: "Percent", format: ".0f" }
+          ]
+        }
+      },
+
+      /* percent label (centered) — shown when segment >= 6% */
+      {
+        mark: {
+          type: "text",
+          dy: 0,
+          fontWeight: "bold",
+          fill: "#1d110e",
+          stroke: "#ffffff",
+          strokeWidth: 0.75
+        },
+        encoding: {
+          y: { field: "group", type: "nominal" },
+          x: { field: "percent", type: "quantitative", stack: "center", scale: { domain: [0, 1] } },
+          text: { field: "labelPercent" },
+          opacity: {
+            condition: { test: "datum.percent >= 6", value: 1 },
+            value: 0
+          }
+        }
+      },
+
+      /* frequency label (below percent) — shown when segment >= 18% */
+      {
+        mark: {
+          type: "text",
+          dy: 14,
+          fontSize: 11,
+          fill: "#1d110e",
+          stroke: "#ffffff",
+          strokeWidth: 0.5
+        },
+        encoding: {
+          y: { field: "group", type: "nominal" },
+          x: { field: "percent", type: "quantitative", stack: "center", scale: { domain: [0, 1] } },
+          text: { field: "frequency" },
+          opacity: {
+            condition: { test: "datum.percent >= 18", value: 1 },
+            value: 0
+          }
+        }
+      }
+    ],
+
+    config: { view: { stroke: null } }
+  };
+
+  container.innerHTML = "";
+  await vegaEmbed("#chart-stacked", stackedSpec, { actions: false });
+})();
+</script>
+
+
+
+<!-- ======================= TRADE (USD) — Single chart with dropdown ======================= -->
+<section class="section" id="ie-trend">
+  <div class="grid">
+    <div class="viz-col">
+      <div class="chart-card" aria-label="Line chart of green-coffee trade by year (USD)">
+        <!-- Dropdown lives here so you can style/position it -->
+        <label for="flowSelect" class="kicker" style="display:block;margin-bottom:8px;">Trade flow</label>
+        <select id="flowSelect" aria-label="Select trade flow" style="margin-bottom:12px;">
+          <option value="Import" selected>Import</option>
+          <option value="Export">Export</option>
+        </select>
+
+        <div class="vis" id="ie-line"></div>
+      </div>
+    </div>
+
+    <div class="text-col">
+      <div class="prose">
+        <div class="kicker">Trade trend</div>
+        <h2>Australia’s green-coffee <em>trade</em></h2>
+        <p class="desc">UN Comtrade totals by year. Values shown in USD. Use the dropdown to switch between imports and exports.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+(async () => {
+  // Build a single spec that filters by a top-level parameter "flow"
+  const specTrade = {
+    $schema: "https://vega.github.io/schema/vega-lite/v5.json",
+    description: "Green-coffee trade (USD) by year with Import/Export toggle.",
+    autosize: { type: "fit-x", contains: "padding" },
+    width: "container",
+    height: 300,
+
+    // Parameter that we drive from the external <select>
+    params: [
+      { name: "flow", value: "Import" } // initial; will be synced to the dropdown on load
+    ],
+
+    data: { url: "./i_e_year.csv" },
+
+    transform: [
+      { filter: "datum.Flow === flow" },
+      { calculate: "toNumber(datum['Trade (USD)'])", as: "TradeUSD" },
+      { calculate: "toNumber(datum['Year'])", as: "YearNum" },
+      { filter: "isValid(datum.TradeUSD) && isFinite(datum.TradeUSD) && isValid(datum.YearNum)" }
+    ],
+
+    mark: { type: "line", point: { filled: true, size: 50 }, strokeWidth: 2.5 },
+
+    encoding: {
+      x: {
+        field: "YearNum", type: "quantitative", title: "Year",
+        axis: { tickMinStep: 1, format: "d", labelAngle: 0 }
+      },
+      y: {
+        field: "TradeUSD", type: "quantitative", title: "Trade (USD)",
+        axis: { format: "$,.2s" }
+      },
+      color: { value: "#7a4b3a" },       // you can swap to theme color if you prefer
+      tooltip: [
+        { field: "YearNum", title: "Year", format: "d" },
+        { field: "Flow", title: "Flow" },
+        { field: "TradeUSD", title: "Trade (USD)", format: "$,.0f" }
+      ],
+      order: { field: "YearNum" }
+    },
+
+    config: {
+      view: { stroke: null }
+      // If you want to force specific axis colors here, you can, but your global theme will handle it.
+    }
+  };
+
+  try {
+    const embedResult = await vegaEmbed("#ie-line", specTrade, { actions: false, renderer: "canvas" });
+    const view = embedResult.view;
+
+    // Wire the external dropdown to the Vega signal
+    const sel = document.getElementById("flowSelect");
+    // Ensure spec param matches the initial dropdown value
+    view.signal("flow", sel.value).run();
+
+    sel.addEventListener("change", () => {
+      view.signal("flow", sel.value).run();
+    });
+  } catch (e) {
+    console.error("Trade chart failed:", e);
+    const el = document.getElementById("ie-line");
+    if (el) el.innerHTML = `<p style="color:#e11d48;text-align:center">Could not load chart: ${e.message}</p>`;
+  }
+})();
+</script>
+
+
+
+
+<!-- Coffee chains treemap (true treemap via Vega) -->
+<section class="section" id="stores-treemap">
+  <div class="grid">
+    <div class="viz-col">
+      <div class="chart-card" aria-label="Treemap of top Australian coffee chains by store count">
+        <div class="vis" id="treemap"></div>
+      </div>
+    </div>
+    <div class="text-col">
+      <div class="prose">
+        <div class="kicker">Store footprint</div>
+        <h2>Top coffee chains in Australia (by locations)</h2>
+        <p class="desc">Area is proportional to number of locations. Data from <code>stores.json</code>.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<script>
+(async () => {
+  // 1) Load the flat array
+  let rows = [];
+  try {
+    const res = await fetch('./stores.json', { cache: 'no-store' });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    rows = await res.json();
+  } catch (e) {
+    console.error('Failed to load stores.json:', e);
+    rows = [];
+  }
+
+  // 2) Build tuples with an explicit root (required for stratify)
+  const tuples = [
+    { id: 'root', parent: null, name: 'All Chains', value: 0 }
+  ].concat(
+    rows
+      .map(d => ({
+        id: String(d.name),
+        parent: 'root',
+        name: String(d.name),
+        value: Number(d.locations)
+      }))
+      .filter(d => Number.isFinite(d.value) && d.value > 0)
+  );
+
+  // 3) Vega treemap spec
+  const spec = {
+    $schema: "https://vega.github.io/schema/vega/v5.json",
+    autosize: { type: "fit", contains: "padding", resize: true },
+    width: 1520,
+    height: 500,
+    padding: 8,
+    background: "#ffffff",
+
+    data: [{
+      name: "table",
+      values: tuples,
+      transform: [
+        { type: "stratify", key: "id", parentKey: "parent" },
+        {
+          type: "treemap",
+          field: "value",
+          method: "squarify",
+          sort: { field: "value", order: "descending" },
+          round: true,
+          ratio: 1.2,
+          size: [{ signal: "width" }, { signal: "height" }],
+          as: ["x0","y0","x1","y1","depth","children"]
+        },
+        { type: "filter", expr: "!datum.children" } // leaf nodes only
+      ]
+    }],
+
+    scales: [{
+      name: "color",
+      type: "ordinal",
+      domain: { data: "table", field: "name" },
+      range: ["#d9c8b5","#b89374","#925c3f","#6b341c","#491e0e",
+              "#ffcf9b","#cfd7d2","#9eb4aa","#6f887d","#ffe48a"]
+    }],
+
+    marks: [
+      {
+        type: "rect",
+        from: { data: "table" },
+        encode: {
+          enter: {
+            x: { field: "x0" }, y: { field: "y0" },
+            x2:{ field: "x1" }, y2:{ field: "y1" },
+            fill: { scale: "color", field: "name" },
+            stroke: { value: "#ffffff" },
+            strokeWidth: { value: 0.1 },                 // ← thinner stroke
+            cursor: { value: "pointer" },
+            tooltip: {                                     // ← hover tooltip
+              signal: "{'Name': datum.name, 'Locations': format(datum.value, ',')}"
+            }
+          },
+          update: { opacity: { value: 1 } },
+          hover:  { opacity: { value: 0.9 } }
+        }
+      },
+      {
+        type: "text",
+        from: { data: "table" },
+        encode: {
+          enter: {
+            x: { signal: "(datum.x0 + datum.x1)/2" },
+            y: { signal: "(datum.y0 + datum.y1)/2" },
+            align: { value: "center" },
+            baseline: { value: "middle" },
+            font: { value: "Inter, system-ui, Arial" },
+            fontSize: { value: 14 },
+            fill: { value: "#000000" },
+            stroke: { value: "#ffffff" }, strokeWidth: { value: 0.05 },
+            text: { signal: "datum.name " }
+          }
+        }
+      }
+    ]
+  };
+
+  await vegaEmbed("#treemap", spec, { actions: false });
+})();
+</script>
+
+
+
+
+
+
+  <!-- Embed charts + Map preprocessing (single async block) -->
   <script>
     (async () => {
-      // Embed charts
-      document.getElementById('trade').innerHTML = "";
-      document.getElementById('unitcost').innerHTML = "";
+      // Embed bar charts
       await vegaEmbed('#trade', tradeSpec,   { actions:false });
       await vegaEmbed('#unitcost', unitCostSpec, { actions:false });
+
+      // Embed donuts (no text/legend/tooltip)
+      await vegaEmbed('#donut-flat',  donutFlatSpec,  { actions:false });
+      await vegaEmbed('#donut-capp',  donutCappSpec,  { actions:false });
+      await vegaEmbed('#donut-latte', donutLatteSpec, { actions:false });
 
       // ----- Map preprocessing -----
       const [mapRes, dataRes] = await Promise.all([ fetch('./map.json'), fetch('./data.json') ]);
@@ -308,7 +788,7 @@
         + `<code>data.json</code>: <b>${poiFeaturesRaw.length}</b> features `
         + `→ Aggregated <b>${agg.length}</b> postcodes (max <b>${maxN}</b>)`;
 
-      // Map spec (darker, more readable bubble text)
+      // Map spec
       const mapSpec={
         "$schema":"https://vega.github.io/schema/vega-lite/v5.json",
         "autosize": {"type":"fit", "contains":"padding"},
@@ -327,11 +807,8 @@
                "color":{"field":"n","type":"quantitative","title":"Count","scale":{"range":COFFEE_RANGE,"domain":[1,Math.max(5,maxN)]}},
                "tooltip":[{"field":"pc","title":"Postcode"},{"field":"label","title":"Suburb (mode)"},{"field":"n","title":"Cafés/Restaurants"}]
              }},
-            /* Darker count labels with light halo */
             {"mark":{"type":"text","baseline":"middle","align":"center","fontSize":14,"fontWeight":"bold","fill":"#ffffff","stroke":"#1d110e","strokeWidth":0.1},
-
              "encoding":{"longitude":{"field":"lon_mean","type":"quantitative"},"latitude":{"field":"lat_mean","type":"quantitative"},"text":{"field":"n","type":"quantitative"}}},
-            /* Suburb labels slightly larger and haloed */
             {"mark":{"type":"text","baseline":"bottom","align":"center","dy":-25,"dx":-10,"fontSize":13,"fontWeight":"bold","fill":"#1d110e","stroke":"#ffffff","strokeWidth":0.1},
              "encoding":{"longitude":{"field":"lon_mean","type":"quantitative"},"latitude":{"field":"lat_mean","type":"quantitative"},"text":{"field":"label","type":"nominal"}}}
           ]}

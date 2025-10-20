@@ -1,0 +1,8 @@
+[
+  { "frequency": "Less than once a month", "percent": 8 },
+  { "frequency": "Around once a month",    "percent": 7 },
+  { "frequency": "A few times a month",    "percent": 12 },
+  { "frequency": "About once a week",      "percent": 23 },
+  { "frequency": "A few times a week",     "percent": 39 },
+  { "frequency": "Every day",              "percent": 11 }
+]
