@@ -255,7 +255,7 @@ Australia’s coffee culture is fiercely independent, craft-minded, and obsessed
       <div class="section-header">
         <h2>Flat White, Cappuccino, and Caffé Latté</h2>
       </div>
-      <p style="text-align: center; margin-bottom: 40px;" class="lede">A quick peek inside Australia’s big three milk-espresso drinks. Labels appear only when there’s room.</p>
+      <p style="text-align: center; margin-bottom: 40px;" class="lede">A quick peek inside Australia’s big three milk-espresso drinks</p>
 
       <div class="donut-layout">
         <div class="donut-row">
@@ -540,43 +540,49 @@ Australia’s coffee culture is fiercely independent, craft-minded, and obsessed
     };
 
     /* --------- Donuts with centered % (largest slice) --------- */
-    const donutSpec = (drink, title) => ({
-      $schema: "https://vega.github.io/schema/vega-lite/v5.json",
-      title: { text: title, anchor: "middle", offset: 6 },
-      autosize: { type:"fit", contains:"padding" },
-      width: "container", height: 260, background:"#ffffff",
-      data: { url: "./ingredient.json" },
-      transform: [
-        { filter: `datum.drink === '${drink}'` },
-        { joinaggregate: [{ op: "sum", field: "value", as: "total" }] },
-        { calculate: "datum.value / datum.total", as: "share" },
-        { calculate: "format(datum.share, '.0%')", as: "pctLabel" }
-      ],
-      layer: [
-        {
-          mark: { type: "arc", innerRadius: 78, cornerRadius: 6, padAngle: 0.02, tooltip: true },
-          encoding: {
-            theta: { field: "value", type: "quantitative" },
-            color: { field: "part", type: "nominal", legend: null, scale: { range: COFFEE_RANGE.slice(2,7) } },
-            tooltip: [
-              { field: "part", title: "Component" },
-              { field: "value", title: "Share", format: ".0f" },
-              { field: "pctLabel", title: "Percent" }
-            ]
-          }
-        },
-        {
-          transform: [
-            { window: [{ op: "rank", as: "r" }], sort: [{ field: "share", order: "descending" }] },
-            { filter: "datum.r === 1" },
-            { calculate: "format(datum.share, '.0%')", as: "centerPct" }
-          ],
-          mark: { type: "text", fontSize: 18, fontWeight: "700", align: "center", baseline: "middle", fill: "#1d110e" },
-          encoding: { radius: { value: 0 }, theta: { value: 0 }, text: { field: "centerPct" } }
-        }
-      ],
-      config: VL_THEME
-    });
+const donutSpec = (drink, title) => ({
+  $schema: "https://vega.github.io/schema/vega-lite/v5.json",
+  // title: { text: title, anchor: "middle", offset: 6 },
+  autosize: { type:"fit", contains:"padding" },
+  width: "container", height: 260, background:"#ffffff",
+  data: { url: "./ingredient.json" },
+  transform: [
+    { filter: `datum.drink === '${drink}'` },
+    { joinaggregate: [{ op: "sum", field: "value", as: "total" }] },
+    { calculate: "datum.value / datum.total", as: "share" },
+    { calculate: "format(datum.share, '.0%')", as: "pctLabel" }
+  ],
+  layer: [
+    {
+      mark: { type: "arc", innerRadius: 78, cornerRadius: 6, padAngle: 0.02, tooltip: true },
+      encoding: {
+        theta: { field: "value", type: "quantitative" },
+        color: { field: "part", type: "nominal", legend: null, scale: { range: COFFEE_RANGE.slice(2,7) } },
+        tooltip: [
+          { field: "part", title: "Component" },
+          { field: "value", title: "Share", format: ".0f" },
+          { field: "pctLabel", title: "Percent" }
+        ]
+      }
+    },
+    {
+      mark: {
+        type: "text",
+        fontSize: 16,
+        fontWeight: "700",
+        align: "center",
+        baseline: "middle",
+        fill: "#1d110e"
+      },
+      encoding: {
+        radius: { value: 0 },
+        theta: { value: 0 },
+        text: { value: title } // or { value: drink }
+      }
+    }
+  ],
+  config: VL_THEME
+});
 
     /* Shared column legend for donuts */
     const donutLegendSpec = {
