@@ -1,0 +1,6 @@
+[
+  { "Generation": "Gen Z",                "Percent": 13 },
+  { "Generation": "Gen Y (Millennials)",  "Percent": 29 },
+  { "Generation": "Gen X",                "Percent": 31 },
+  { "Generation": "Baby Boomers",         "Percent": 19 }
+]

@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>Australia on Caffeine ☕ — Imports & Melbourne Cafés</title>
+  <title>Australia on Caffeine — an infographic ☕</title>
 
   <!-- Vega libs -->
   <script src="https://cdn.jsdelivr.net/npm/vega@5"></script>
@@ -14,134 +14,239 @@
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 
   <style>
+    /* ---------------- Theme ---------------- */
     :root{
       --espresso:#4a2c2a; --mocha:#7a4b3a; --caramel:#b07d62; --latte:#d7b98e;
-      --crema:#f6efe7; --foam:#fff7e9; --ink:#2d1e19; --bean:#8c4c3a;
+      --crema:#f6efe7; --foam:#fff7e9; --ink:#2d1e19; --bean:#8c4c3a; --paper:#fff;
+
+      --card-border: rgba(74,44,42,.08);
+      --shadow-1: 0 8px 18px rgba(42,20,10,.06);
+      --shadow-2: 0 10px 26px rgba(42,20,10,.08);
+      --grad-soft: radial-gradient(1200px 240px at 50% 0%, rgba(122,75,58,.09), transparent 60%);
     }
     *{ box-sizing:border-box }
     html,body{ margin:0; padding:0; background:linear-gradient(180deg,var(--crema),var(--foam)); color:var(--ink) }
-    body{ font-family:Inter,system-ui,Arial,Helvetica,sans-serif; }
+    body{ font-family:Inter,system-ui,Arial,Helvetica,sans-serif; line-height:1.55; text-rendering:optimizeLegibility }
 
-    .wrap{ max-width:2020px; margin:0 auto; padding:18px 18px 42px; }
+    /* Subtle page rhythm */
+    .wrap{ max-width:1400px; margin:0 auto; padding:18px 18px 56px }
 
-    /* HERO */
-    .hero{ text-align:center; padding: 8px 8px 0; }
+    /* ---------- HERO ---------- */
+    .hero{
+      text-align:center; padding: 30px 20px 26px;
+      background: var(--grad-soft);
+      border-radius: 18px;
+      width:100%; margin: 10px auto 12px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: var(--shadow-1);
+    }
+    .hero::after{
+      content:""; position:absolute; inset:auto auto -1px 50%;
+      width: 780px; height: 2px; transform: translateX(-50%);
+      background: linear-gradient(90deg, transparent, rgba(122,75,58,.25), transparent);
+    }
     .hero h1{
-      font-family:"Playfair Display",serif; color:var(--espresso); margin:6px 0 10px;
-      font-size:clamp(28px,4.2vw,44px); letter-spacing:.2px
+      font-family:"Playfair Display",serif; color:var(--espresso);
+      margin:8px 0 12px; font-size: clamp(34px,5vw,56px); letter-spacing:.2px
     }
-    .hero .sub{ margin:0 auto; max-width:980px; color:var(--mocha); line-height:1.45 }
+    .hero .sub{ margin:0 auto; max-width:920px; color:var(--mocha); font-size: clamp(15px,1.5vw,18px) }
 
-    /* SECTION CARDS */
+    /* ---------- SECTION BOXES (85% width, centered) ---------- */
     .section{
-      background:#fff; border:1px solid rgba(74,44,42,.08); border-radius:16px;
-      box-shadow:0 10px 26px rgba(42,20,10,.08), inset 0 1px 0 rgba(255,255,255,.65);
-      margin:16px 0;
+      width:85%; margin:18px auto;
+      background:var(--paper); border:1px solid var(--card-border); border-radius:16px;
+      box-shadow:var(--shadow-2), inset 0 1px 0 rgba(255,255,255,.7);
+      padding:20px;
+      opacity:0; transform:translateY(12px); transition:opacity .5s ease, transform .5s ease;
     }
+    .section.in{ opacity:1; transform:none }
 
-    /* Two-column grids */
-    .grid{
-      display:grid; gap:18px; align-items:start;
-      grid-template-columns: minmax(0, 1.25fr) minmax(0, 0.9fr);
-      padding:14px;
+    .section-header{
+      display:flex; align-items:baseline; gap:12px; margin: 2px 2px 12px;
+      border-bottom:1px dashed rgba(74,44,42,.15); padding-bottom:8px
     }
-    .grid.reverse{
-      grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.25fr);
-    }
-    .viz-col, .text-col{ min-width:0; }
-
-    /* Text */
-    .prose{ max-width: 72ch; overflow-wrap:anywhere; word-break:break-word }
     .kicker{ color:var(--latte); font-weight:800; letter-spacing:.14em; text-transform:uppercase; font-size:12px }
-    h2{ color:var(--espresso); margin:4px 0 8px; font-size:clamp(18px,2.4vw,24px) }
-    .desc{ color:var(--mocha); margin:8px 0 10px; line-height:1.6 }
+    h2{ color:var(--espresso); margin:0; font-size: clamp(20px,2.4vw,26px) }
+    .lede{ color:var(--mocha); margin:8px 0 0 }
 
-    /* Charts */
+    /* ---------- GRID ---------- */
+    .grid{ display:grid; gap:18px; align-items:start; grid-template-columns: minmax(0, 1.15fr) minmax(0, .95fr) }
+    .grid.reverse{ grid-template-columns: minmax(0,.95fr) minmax(0,1.15fr) }
+    .viz-col, .text-col{ min-width:0 }
+
+    /* ---------- STATS TILES ---------- */
+    .tiles{ display:grid; gap:14px; grid-template-columns: repeat(4, minmax(0,1fr)) }
+    .tile{
+      background:linear-gradient(180deg,#fff, #fffaf3);
+      border:1px solid var(--card-border); border-radius:14px; padding:14px 12px;
+      box-shadow: var(--shadow-1);
+    }
+    .tile .num{ color:var(--espresso); font-weight:800; font-size: clamp(22px,3.2vw,30px) }
+    .tile .cap{ color:var(--mocha); font-size:13px }
+
+    /* ---------- CHART CONTAINERS ---------- */
     .chart-card{
       background:#fff; border:1px solid rgba(74,44,42,.06); border-radius:14px;
       padding:10px; overflow:visible;
     }
-    .vis{ width:100%; min-height:420px }
-    #vis{ min-height:680px }
+    .vis{ width:100%; min-height:360px }
 
-    /* Map + rail */
-    .map-grid{
-      display:grid; gap:0; grid-template-columns: minmax(0,1fr) 460px;
+    /* Donut trio */
+    #donuts .vis{ min-height: 260px }
+    #donuts .donut-layout{
+      display:grid; grid-template-columns: 1fr 220px; gap:16px; align-items:start;
     }
-    .rail{ border-left:1px solid rgba(74,44,42,.08); padding:16px }
-    #status{ margin:10px 14px 14px; color:var(--mocha); font-size:13px; background:#fff; border:1px dashed rgba(122,75,58,.35);
-      padding:8px 10px; border-radius:10px }
+    #donuts .donut-row{ display:grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap:16px; }
+    #donuts .legend-box{
+      background:#fff; border:1px solid rgba(74,44,42,.10); border-radius:10px; padding:10px 12px;
+      box-shadow: var(--shadow-1); min-width:200px; position:sticky; top:14px; align-self:start;
+    }
+    #donuts .legend-title{
+      font: 700 11px/1 Inter, system-ui, Arial, sans-serif; color:#7a4b3a; letter-spacing:.06em;
+      text-transform:uppercase; margin:0 0 8px
+    }
+
+    /* Big map */
+    .map-big .vis{ min-height:640px }
+
+    /* Flow select (nicer than system default) */
+    select#flowSelect{
+      appearance:none; border:1px solid var(--card-border); border-radius:10px;
+      padding:8px 34px 8px 10px; background: #fff url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="14" height="10" viewBox="0 0 14 10"><path fill="%237a4b3a" d="M7 10L0 0h14z"/></svg>') no-repeat right 10px center / 12px 8px;
+      font: 600 13px/1 Inter, system-ui, Arial; color: var(--espresso);
+    }
+
+    /* References */
+    .refs .ref-list{
+      list-style:none; padding:0; margin:6px 0 6px;
+      display:grid; gap:10px; grid-template-columns: 1fr 1fr;
+    }
+    .refs .ref-list li{
+      background:#fff; border:1px solid var(--card-border); border-radius:10px; padding:10px 12px;
+    }
+    .refs .ref-list a{ color:var(--espresso); text-decoration:none; font-weight:600 }
+    .refs .ref-list a:hover{ text-decoration:underline }
+    .refs .meta{
+      display:inline-block; margin-left:8px; font-size:12px; color:var(--mocha);
+      background:#fff7e9; border-radius:999px; padding:2px 8px;
+    }
+    .refs .refs-note{ margin-top:12px; color:var(--mocha); font-size:13px }
 
     /* Responsive */
     @media (max-width: 1100px){
-      .grid, .grid.reverse{ grid-template-columns: 1fr; padding:12px }
-      .map-grid{ grid-template-columns: 1fr }
-      .rail{ border-left:none; border-top:1px solid rgba(74,44,42,.08) }
-      .prose{ max-width: 100% }
-    }
-
-    /* Hide any accidental legends */
-    #trade .vega-legend, #unitcost .vega-legend { display: none !important; }
-
-    /* Donut row (3 across, no text) */
-    .donut-row{
-      display:grid; gap:18px; grid-template-columns: repeat(3, minmax(0,1fr));
+      .grid, .grid.reverse{ grid-template-columns: 1fr }
+      #donuts .donut-layout{ grid-template-columns: 1fr }
+      #donuts .legend-box{ position:static; margin-top:8px }
     }
     @media (max-width: 900px){
-      .donut-row{ grid-template-columns: 1fr }
+      #donuts .donut-row{ grid-template-columns: 1fr }
+      .tiles{ grid-template-columns: 1fr 1fr }
+      .refs .ref-list{ grid-template-columns: 1fr }
+    }
+
+    /* Hide Vega action buttons */
+    .vega-actions{ display:none !important }
+
+    /* Respect reduced motion */
+    @media (prefers-reduced-motion: reduce){
+      .section{ transition: none; opacity:1; transform:none }
     }
   </style>
 </head>
 <body>
   <div class="wrap">
+    <!-- HERO -->
     <header class="hero">
-      <h1>Australia on Caffeine <span aria-hidden="true">☕</span></h1>
+      <h1>Australia on Caffeine ☕</h1>
       <p class="sub">
-        Australia’s coffee culture is fiercely independent and quality-obsessed: from post-war espresso bars to third-wave roasters, the flat white, and café-dense inner suburbs. 
-        This visual story traces the pipeline behind that daily ritual—who supplies our beans, what we pay per kilogram, and how Melbourne’s cafés cluster across the city.
+        From post-war espresso bars to third-wave roasters, Australia’s coffee culture is independent and quality-obsessed.
+        This infographic traces the pipeline behind the daily ritual—what’s in our cups, who drinks them, how habits are changing,
+        and the trade & places that make it possible.
       </p>
     </header>
 
-    <!-- SECTION 4: Donut chart trio (no text on charts) -->
-    <section class="section" id="donuts">
-      <div class="donut-row">
-        <div class="vis" id="donut-flat"></div>
-        <div class="vis" id="donut-capp"></div>
-        <div class="vis" id="donut-latte"></div>
+    <!-- KEY STATS -->
+    <section class="section">
+      <div class="section-header">
+        <div class="kicker">At a glance</div><h2>The state of coffee in Australia</h2>
+      </div>
+      <div class="tiles">
+        <div class="tile"><div class="num">2.2M</div><div class="cap">60-kg bags consumed per year</div></div>
+        <div class="tile"><div class="num">2.1 kg</div><div class="cap">per person (2021)</div></div>
+        <div class="tile"><div class="num">61.5%</div><div class="cap">adults drink coffee (ABS 2023)</div></div>
+        <div class="tile"><div class="num">65%</div><div class="cap">have a machine at home</div></div>
       </div>
     </section>
 
-    <!-- SECTION 1: Graph left / Text right -->
-    <section class="section">
+    <!-- WHAT’S IN A CUP -->
+    <section class="section" id="donuts">
+      <div class="section-header">
+        <div class="kicker">What’s in a cup</div><h2>Flat White, Cappuccino, and Caffé Latté</h2>
+      </div>
+      <p class="lede">A quick peek inside Australia’s big three milk-espresso drinks. Labels appear only when there’s room.</p>
+
+      <div class="donut-layout">
+        <div class="donut-row">
+          <div class="vis" id="donut-flat"></div>
+          <div class="vis" id="donut-capp"></div>
+          <div class="vis" id="donut-latte"></div>
+        </div>
+
+        <aside id="donut-legend" class="legend-box" aria-label="Legend for drink components">
+          <div class="legend-title">Components</div>
+          <div class="vis" id="donut-legend-viz"></div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- WHO DRINKS (Gender + Generation) -->
+    <section class="section" id="who-drinks">
+      <div class="section-header">
+        <div class="kicker">Who drinks</div><h2>By gender and generation</h2>
+      </div>
       <div class="grid">
+        <div class="viz-col">
+          <div class="chart-card" aria-label="Pie chart: coffee consumption by gender">
+            <div class="vis" id="chart-gender-pie"></div>
+          </div>
+        </div>
+        <div class="text-col">
+          <p class="lede">
+            In this sample, <strong>52.3%</strong> of women drink coffee vs <strong>47.4%</strong> of men.
+            By generation, Gen&nbsp;X leads the “can’t survive the day without coffee” club.
+          </p>
+          <div class="chart-card" style="margin-top:12px" aria-label="Vertical bars: dependence by generation">
+            <div class="vis" id="coffee-bars"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TRADE (alternating graph/text) -->
+    <section class="section" id="trade-value">
+      <div class="section-header">
+        <div class="kicker">Trade</div><h2>Who supplies our beans?</h2>
+      </div>
+      <div class="grid"><!-- graph LEFT, text RIGHT -->
         <div class="viz-col">
           <div class="chart-card" aria-label="Bar chart for import value by partner">
             <div class="vis" id="trade"></div>
           </div>
         </div>
         <div class="text-col">
-          <div class="prose">
-            <div class="kicker">Story 01</div>
-            <h2>Who supplies our beans?</h2>
-            <p class="desc" id="value-narrative">
-              Brazil is the clear leader, bringing in about $120M of coffee—almost twice Colombia (about $63M) and roughly three times the overall average (~$37M). Honduras sits right around the average, while Papua New Guinea, Vietnam, and Ethiopia form a solid middle group ($27–33M). India, Nicaragua, Peru, and Guatemala are smaller contributors (about $13–19M each). In short: a few countries drive most of the value, with Brazil far out in front.
-            </p>
-          </div>
+          <p class="lede">Brazil dominates import value; Colombia is a distant second. Use the slider to hide small-value importers.</p>
         </div>
       </div>
     </section>
 
-    <!-- SECTION 2: Text left / Graph right -->
-    <section class="section">
-      <div class="grid reverse">
+    <section class="section" id="trade-cost">
+      <div class="section-header">
+        <div class="kicker">Trade</div><h2>What do we pay per kilogram?</h2>
+      </div>
+      <div class="grid reverse"><!-- graph RIGHT, text LEFT -->
         <div class="text-col">
-          <div class="prose">
-            <div class="kicker">Story 02</div>
-            <h2>What do we pay per kilogram?</h2>
-            <p class="desc" id="unitcost-narrative">
-              The chart ranks countries by coffee price per kg. The average is about $4.84/kg. Guatemala is the most expensive at roughly $6.1/kg, with Colombia and Peru also high around $5.6–$5.9. Honduras is near the average. Brazil and Papua New Guinea are a bit cheaper at about $4.4–$4.6. India (~$3.5) and Vietnam (~$2.6–$2.7) are the lowest-cost suppliers.
-            </p>
-          </div>
+          <p class="lede">Guatemala has the highest unit cost; India and Vietnam are lowest. Values come from value/quantity.</p>
         </div>
         <div class="viz-col">
           <div class="chart-card" aria-label="Bar chart for unit cost by partner">
@@ -151,593 +256,395 @@
       </div>
     </section>
 
-    <!-- SECTION 3: Full map with right rail text -->
-    <section class="section">
-      <div class="map-grid">
-        <div class="viz-col" style="padding:10px;">
-          <div class="chart-card" aria-label="Map of Melbourne cafés by postcode" style="border:none; padding:0;">
-            <div class="vis" id="vis"></div>
-            <div id="status">brewing…</div>
+    <section class="section" id="trade-trend">
+      <div class="section-header">
+        <div class="kicker">Trade</div><h2>Imports vs exports over time</h2>
+      </div>
+      <div class="grid"><!-- graph LEFT again -->
+        <div class="viz-col">
+          <div class="chart-card" aria-label="Line chart of green-coffee trade by year (USD)">
+            <label for="flowSelect" class="kicker" style="display:block;margin:6px 0 6px;">Trade flow</label>
+            <select id="flowSelect" aria-label="Select trade flow" style="margin-bottom:8px">
+              <option value="Import" selected>Import</option>
+              <option value="Export">Export</option>
+            </select>
+            <div class="vis" id="ie-line"></div>
           </div>
         </div>
-
-        <aside class="rail text-col">
-          <div class="prose">
-            <div class="kicker">Story 03</div>
-            <h2>Where does Melbourne’s café scene cluster?</h2>
-            <p class="desc" id="map-narrative">
-              Melbourne (CBD) is the standout hotspot with ~870 venues. The next clusters are Carlton (~170), Docklands (~150) and Southbank (~120). Surrounding suburbs are far quieter: North Melbourne (~80), West Melbourne (~40), East Melbourne (~27) and Melbourne (Remainder, ~31), with Port Melbourne (~15), South Yarra (~8) and Parkville only single-digit counts. In short, the café scene is heavily centered on the CBD, tapering quickly with distance from it.
-            </p>
-          </div>
-        </aside>
+        <div class="text-col">
+          <p class="lede">Australia is a net importer of green coffee; the line shows totals in USD by year. Toggle flow with the dropdown.</p>
+        </div>
       </div>
     </section>
-  </div>
 
-  <!-- All JS consolidated at the end so elements exist before embedding -->
-  <script>
-    // ---------- Globals (define before any spec uses them) ----------
-    const COFFEE_RANGE = ["#d9c8b5","#b89374","#925c3f","#6b341c","#491e0e","#2b1107","#0f0703"];
-
-    // ---- Chart specs (responsive, legends off) ----
-    const tradeSpec = {
-      "$schema":"https://vega.github.io/schema/vega-lite/v5.json",
-      "autosize": {"type":"fit", "contains":"padding"},
-      "width": "container", "height": 420,
-      "data": { "url": "./trade_data.csv" },
-      "params":[{"name":"sliderMin","value":0,"bind":{
-        "input":"range","min":0,"max":120000,"step":5000,"name":"Min Trade Value (×1000 USD): "
-      }}],
-      "transform":[
-        {"calculate":"toNumber(datum['Trade Value 1000USD'])","as":"TradeValue"},
-        {"calculate":"toNumber(datum['Quantity'])","as":"Quantity"},
-        {"filter":"isValid(datum.TradeValue) && isFinite(datum.TradeValue)"},
-        {"filter":"isValid(datum.Quantity) && isFinite(datum.Quantity)"},
-        {"filter":"datum.TradeValue >= sliderMin"}
-      ],
-      "layer":[
-        {"mark":{"type":"bar","cornerRadiusEnd":4,"tooltip":true},
-         "encoding":{
-           "y":{"field":"Partner","type":"nominal","sort":"-x","title":"Partner Country"},
-           "x":{"field":"TradeValue","type":"quantitative","title":"Trade Value (×1000 USD)","axis":{"format":",.0f"},"scale":{"domain":[0,120000]}},
-           "color":{"field":"TradeValue","type":"quantitative","scale":{"range":COFFEE_RANGE,"domain":[0,120000]},"legend": null},
-           "tooltip":[
-             {"field":"Partner","title":"Partner"},
-             {"field":"TradeValue","title":"Trade Value (×1000 USD)","format":","},
-             {"field":"Quantity","title":"Quantity (kg)","format":","}
-           ]
-         }},
-        {"transform":[{"aggregate":[{"op":"mean","field":"TradeValue","as":"avgTV"}]}],
-         "mark":{"type":"rule","strokeDash":[6,4],"strokeWidth":2,"color":"#4a2c2a"},
-         "encoding":{"x":{"field":"avgTV","type":"quantitative"}}},
-        {"transform":[
-            {"aggregate":[{"op":"mean","field":"TradeValue","as":"avgTV"}]},
-            {"calculate":"'Avg: ' + format(datum.avgTV, ',.0f')","as":"labelText"}],
-         "mark":{"type":"text","align":"center","baseline":"top","fontWeight":"bold","fontSize":12,"color":"#4a2c2a","dy":300,"dx":40},
-         "encoding":{"x":{"field":"avgTV","type":"quantitative"},"y":{"value":0},"text":{"field":"labelText","type":"nominal"}}}
-      ],
-      "config":{"legend":{"disable":true},"view":{"stroke":null},"axis":{"labelFont":"Inter","titleFont":"Inter","labelColor":"#4a2c2a","titleColor":"#4a2c2a"}}
-    };
-
-    const unitCostSpec = {
-      "$schema":"https://vega.github.io/schema/vega-lite/v5.json",
-      "autosize": {"type":"fit", "contains":"padding"},
-      "width": "container", "height": 420,
-      "data": { "url": "./trade_data.csv" },
-      "params":[{"name":"sliderMin","value":0,"bind":{
-        "input":"range","min":0,"max":120000,"step":5000,"name":"Min Trade Value (×1000 USD): "
-      }}],
-      "transform":[
-        {"calculate":"toNumber(datum['Trade Value 1000USD'])","as":"TradeValueK"},
-        {"calculate":"toNumber(datum['Quantity'])","as":"Quantity"},
-        {"filter":"isValid(datum.TradeValueK) && isFinite(datum.TradeValueK)"},
-        {"filter":"isValid(datum.Quantity) && isFinite(datum.Quantity) && datum.Quantity > 0"},
-        {"filter":"datum.TradeValueK >= sliderMin"},
-        {"calculate":"(datum.TradeValueK * 1000) / datum.Quantity","as":"UnitCostUSDperKG"}
-      ],
-      "layer":[
-        {"mark":{"type":"bar","cornerRadiusEnd":4,"tooltip":true},
-         "encoding":{
-           "y":{"field":"Partner","type":"nominal","sort":"-x","title":"Partner Country"},
-           "x":{"field":"UnitCostUSDperKG","type":"quantitative","title":"Unit Cost (USD/kg)","axis":{"format":".2f"}},
-           "color":{"field":"UnitCostUSDperKG","type":"quantitative","scale":{"range":COFFEE_RANGE},"legend": null},
-           "tooltip":[
-             {"field":"Partner","title":"Partner"},
-             {"field":"UnitCostUSDperKG","title":"Unit Cost (USD/kg)","format":".2f"},
-             {"field":"TradeValueK","title":"Trade Value (×1000 USD)","format":","},
-             {"field":"Quantity","title":"Quantity (kg)","format":","}
-           ]
-         }},
-        {"transform":[{"aggregate":[{"op":"mean","field":"UnitCostUSDperKG","as":"avgUC"}]}],
-         "mark":{"type":"rule","strokeDash":[6,4],"strokeWidth":2,"color":"#4a2c2a"},
-         "encoding":{"x":{"field":"avgUC","type":"quantitative"}}},
-        {"transform":[
-            {"aggregate":[{"op":"mean","field":"UnitCostUSDperKG","as":"avgUC"}]},
-            {"calculate":"'Avg: ' + format(datum.avgUC, '.2f') + ' USD/kg'","as":"labelText"}],
-         "mark":{"type":"text","align":"center","baseline":"top","fontWeight":"bold","fontSize":12,"color":"#4a2c2a","dy":300,"dx":40},
-         "encoding":{"x":{"field":"avgUC","type":"quantitative"},"y":{"value":0},"text":{"field":"labelText","type":"nominal"}}}
-      ],
-      "config":{"legend":{"disable":true},"view":{"stroke":null},"axis":{"labelFont":"Inter","titleFont":"Inter","labelColor":"#4a2c2a","titleColor":"#4a2c2a"}}
-    };
-
-    // ---- Donut specs (no text/legend/tooltip) reading from ./ingredient.json ----
-// ---- Donut specs WITH titles + hover tooltips ----
-    const donutFlatSpec = {
-      "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
-      "title": { "text": "Flat White", "font": "Inter", "fontWeight": "700", "color": "#4a2c2a", "anchor": "start", "offset": 8 },
-      "autosize": {"type":"fit","contains":"padding"},
-      "width": "container", "height": 240, "background":"#ffffff",
-      "data": { "url": "./ingredient.json" },
-      "transform": [
-        { "filter": "datum.drink === 'Flat White'" },
-        { "joinaggregate": [{ "op": "sum", "field": "value", "as": "total" }] },
-        { "calculate": "datum.value / datum.total * 100", "as": "pct" }
-      ],
-      "mark": { "type": "arc", "innerRadius": 70, "cornerRadius": 4, "tooltip": true },
-      "encoding": {
-        "theta": { "field": "value", "type": "quantitative" },
-        "color": {
-          "field": "part", "type": "nominal",
-          "scale": { "range": COFFEE_RANGE.slice(2,7) },
-          "legend": null
-        },
-        "tooltip": [
-          { "field": "part",  "title": "Component" },
-          { "field": "value", "title": "Share", "format": ".0f" },
-          { "field": "pct",   "title": "Percent", "format": ".1f" }
-        ]
-      },
-      "config": { "view": { "stroke": null }, "arc": { "stroke": "#fff", "strokeWidth": 1 } }
-    };
-
-    const donutCappSpec = {
-      "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
-      "title": { "text": "Cappuccino", "font": "Inter", "fontWeight": "700", "color": "#4a2c2a", "anchor": "start", "offset": 8 },
-      "autosize": {"type":"fit","contains":"padding"},
-      "width": "container", "height": 240, "background":"#ffffff",
-      "data": { "url": "./ingredient.json" },
-      "transform": [
-        { "filter": "datum.drink === 'Cappuccino'" },
-        { "joinaggregate": [{ "op": "sum", "field": "value", "as": "total" }] },
-        { "calculate": "datum.value / datum.total * 100", "as": "pct" }
-      ],
-      "mark": { "type": "arc", "innerRadius": 70, "cornerRadius": 4, "tooltip": true },
-      "encoding": {
-        "theta": { "field": "value", "type": "quantitative" },
-        "color": {
-          "field": "part", "type": "nominal",
-          "scale": { "range": COFFEE_RANGE.slice(2,7) },
-          "legend": null
-        },
-        "tooltip": [
-          { "field": "part",  "title": "Component" },
-          { "field": "value", "title": "Share", "format": ".0f" },
-          { "field": "pct",   "title": "Percent", "format": ".1f" }
-        ]
-      },
-      "config": { "view": { "stroke": null }, "arc": { "stroke": "#fff", "strokeWidth": 1 } }
-    };
-
-    const donutLatteSpec = {
-      "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
-      "title": { "text": "Caffé Latté", "font": "Inter", "fontWeight": "700", "color": "#4a2c2a", "anchor": "start", "offset": 8 },
-      "autosize": {"type":"fit","contains":"padding"},
-      "width": "container", "height": 240, "background":"#ffffff",
-      "data": { "url": "./ingredient.json" },
-      "transform": [
-        { "filter": "datum.drink === 'Caffé Latté'" },
-        { "joinaggregate": [{ "op": "sum", "field": "value", "as": "total" }] },
-        { "calculate": "datum.value / datum.total * 100", "as": "pct" }
-      ],
-      "mark": { "type": "arc", "innerRadius": 70, "cornerRadius": 4, "tooltip": true },
-      "encoding": {
-        "theta": { "field": "value", "type": "quantitative" },
-        "color": {
-          "field": "part", "type": "nominal",
-          "scale": { "range": COFFEE_RANGE.slice(2,7) },
-          "legend": null
-        },
-        "tooltip": [
-          { "field": "part",  "title": "Component" },
-          { "field": "value", "title": "Share", "format": ".0f" },
-          { "field": "pct",   "title": "Percent", "format": ".1f" }
-        ]
-      },
-      "config": { "view": { "stroke": null }, "arc": { "stroke": "#fff", "strokeWidth": 1 } }
-    };
-
-  </script>
-
-
-  <section class="section" id="barista-frequency">
-    <div class="grid">
-      <div class="viz-col">
-        <div class="chart-card" aria-label="Normalised stacked bar showing barista-coffee purchase frequency">
-          <div class="vis" id="chart-stacked"></div>
-        </div>
+    <!-- TREEMAP — separate box -->
+    <section class="section" id="stores-treemap">
+      <div class="section-header">
+        <div class="kicker">Places</div><h2>Top coffee chains by locations</h2>
       </div>
-      <div class="text-col">
-        <div class="prose">
-          <div class="kicker">Survey</div>
-          <h2>How often do you purchase coffee made by a barista?</h2>
-          <p class="desc">
-            Respondents most commonly buy barista-made coffee a few times a week, followed by about once a week. The bar shows the share of all responses adding up to 100%.
-          </p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-<script>
-(async () => {
-  // --- load data (with fallback) ---
-  let values;
-  try {
-    const res = await fetch('./stacked.json', { cache: 'no-store' });
-    if (!res.ok) throw new Error();
-    values = await res.json();
-  } catch {
-    values = [
-      { "frequency": "Less than once a month", "percent": 8 },
-      { "frequency": "Around once a month",    "percent": 7 },
-      { "frequency": "A few times a month",    "percent": 12 },
-      { "frequency": "About once a week",      "percent": 23 },
-      { "frequency": "A few times a week",     "percent": 39 },
-      { "frequency": "Every day",              "percent": 11 }
-    ];
-  }
-
-  // --- measure container for a fixed numeric width (prevents squeeze) ---
-  const container = document.querySelector('#chart-stacked');
-  const measuredWidth = Math.max(600, Math.floor(container?.getBoundingClientRect?.().width || 800));
-
-  const stackedSpec = {
-    $schema: "https://vega.github.io/schema/vega-lite/v5.json",
-    autosize: { type: "none" },
-    width: measuredWidth,
-    height: 170,
-    padding: { left: 10, right: 10, top: 8, bottom: 46 },
-
-    data: { values },
-    transform: [
-      { calculate: "toNumber(datum.percent)", as: "percent" },
-      { calculate: "'All respondents'", as: "group" },
-      {
-        calculate:
-          "indexof(['Less than once a month','Around once a month','A few times a month','About once a week','A few times a week','Every day'], datum.frequency)",
-        as: "ord"
-      },
-      { calculate: "datum.percent + '%'", as: "labelPercent" }
-    ],
-
-    layer: [
-      /* bars */
-      {
-        mark: { type: "bar" },
-        encoding: {
-          y: { field: "group", type: "nominal", axis: null, scale: { paddingInner: 0.15 } },
-          x: {
-            field: "percent", type: "quantitative", stack: "normalize",
-            title: "Percent", axis: { format: ".0%" }, scale: { domain: [0, 1] }
-          },
-          color: {
-            field: "frequency", type: "nominal", title: null,
-            scale: {
-              domain: [
-                "Less than once a month","Around once a month","A few times a month",
-                "About once a week","A few times a week","Every day"
-              ],
-              range: ["#ffb3b3","#ffe48a","#fff7c7","#cfd7d2","#9eb4aa","#6f887d"]
-            },
-            legend: { orient: "bottom", direction: "horizontal", columns: 3 }
-          },
-          order: { field: "ord", type: "ordinal" },
-          tooltip: [
-            { field: "frequency", title: "Frequency" },
-            { field: "percent",   title: "Percent", format: ".0f" }
-          ]
-        }
-      },
-
-      /* percent label (centered) — shown when segment >= 6% */
-      {
-        mark: {
-          type: "text",
-          dy: 0,
-          fontWeight: "bold",
-          fill: "#1d110e",
-          stroke: "#ffffff",
-          strokeWidth: 0.75
-        },
-        encoding: {
-          y: { field: "group", type: "nominal" },
-          x: { field: "percent", type: "quantitative", stack: "center", scale: { domain: [0, 1] } },
-          text: { field: "labelPercent" },
-          opacity: {
-            condition: { test: "datum.percent >= 6", value: 1 },
-            value: 0
-          }
-        }
-      },
-
-      /* frequency label (below percent) — shown when segment >= 18% */
-      {
-        mark: {
-          type: "text",
-          dy: 14,
-          fontSize: 11,
-          fill: "#1d110e",
-          stroke: "#ffffff",
-          strokeWidth: 0.5
-        },
-        encoding: {
-          y: { field: "group", type: "nominal" },
-          x: { field: "percent", type: "quantitative", stack: "center", scale: { domain: [0, 1] } },
-          text: { field: "frequency" },
-          opacity: {
-            condition: { test: "datum.percent >= 18", value: 1 },
-            value: 0
-          }
-        }
-      }
-    ],
-
-    config: { view: { stroke: null } }
-  };
-
-  container.innerHTML = "";
-  await vegaEmbed("#chart-stacked", stackedSpec, { actions: false });
-})();
-</script>
-
-
-
-<!-- ======================= TRADE (USD) — Single chart with dropdown ======================= -->
-<section class="section" id="ie-trend">
-  <div class="grid">
-    <div class="viz-col">
-      <div class="chart-card" aria-label="Line chart of green-coffee trade by year (USD)">
-        <!-- Dropdown lives here so you can style/position it -->
-        <label for="flowSelect" class="kicker" style="display:block;margin-bottom:8px;">Trade flow</label>
-        <select id="flowSelect" aria-label="Select trade flow" style="margin-bottom:12px;">
-          <option value="Import" selected>Import</option>
-          <option value="Export">Export</option>
-        </select>
-
-        <div class="vis" id="ie-line"></div>
-      </div>
-    </div>
-
-    <div class="text-col">
-      <div class="prose">
-        <div class="kicker">Trade trend</div>
-        <h2>Australia’s green-coffee <em>trade</em></h2>
-        <p class="desc">UN Comtrade totals by year. Values shown in USD. Use the dropdown to switch between imports and exports.</p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<script>
-(async () => {
-  // Build a single spec that filters by a top-level parameter "flow"
-  const specTrade = {
-    $schema: "https://vega.github.io/schema/vega-lite/v5.json",
-    description: "Green-coffee trade (USD) by year with Import/Export toggle.",
-    autosize: { type: "fit-x", contains: "padding" },
-    width: "container",
-    height: 300,
-
-    // Parameter that we drive from the external <select>
-    params: [
-      { name: "flow", value: "Import" } // initial; will be synced to the dropdown on load
-    ],
-
-    data: { url: "./i_e_year.csv" },
-
-    transform: [
-      { filter: "datum.Flow === flow" },
-      { calculate: "toNumber(datum['Trade (USD)'])", as: "TradeUSD" },
-      { calculate: "toNumber(datum['Year'])", as: "YearNum" },
-      { filter: "isValid(datum.TradeUSD) && isFinite(datum.TradeUSD) && isValid(datum.YearNum)" }
-    ],
-
-    mark: { type: "line", point: { filled: true, size: 50 }, strokeWidth: 2.5 },
-
-    encoding: {
-      x: {
-        field: "YearNum", type: "quantitative", title: "Year",
-        axis: { tickMinStep: 1, format: "d", labelAngle: 0 }
-      },
-      y: {
-        field: "TradeUSD", type: "quantitative", title: "Trade (USD)",
-        axis: { format: "$,.2s" }
-      },
-      color: { value: "#7a4b3a" },       // you can swap to theme color if you prefer
-      tooltip: [
-        { field: "YearNum", title: "Year", format: "d" },
-        { field: "Flow", title: "Flow" },
-        { field: "TradeUSD", title: "Trade (USD)", format: "$,.0f" }
-      ],
-      order: { field: "YearNum" }
-    },
-
-    config: {
-      view: { stroke: null }
-      // If you want to force specific axis colors here, you can, but your global theme will handle it.
-    }
-  };
-
-  try {
-    const embedResult = await vegaEmbed("#ie-line", specTrade, { actions: false, renderer: "canvas" });
-    const view = embedResult.view;
-
-    // Wire the external dropdown to the Vega signal
-    const sel = document.getElementById("flowSelect");
-    // Ensure spec param matches the initial dropdown value
-    view.signal("flow", sel.value).run();
-
-    sel.addEventListener("change", () => {
-      view.signal("flow", sel.value).run();
-    });
-  } catch (e) {
-    console.error("Trade chart failed:", e);
-    const el = document.getElementById("ie-line");
-    if (el) el.innerHTML = `<p style="color:#e11d48;text-align:center">Could not load chart: ${e.message}</p>`;
-  }
-})();
-</script>
-
-
-
-
-<!-- Coffee chains treemap (true treemap via Vega) -->
-<section class="section" id="stores-treemap">
-  <div class="grid">
-    <div class="viz-col">
       <div class="chart-card" aria-label="Treemap of top Australian coffee chains by store count">
         <div class="vis" id="treemap"></div>
       </div>
-    </div>
-    <div class="text-col">
-      <div class="prose">
-        <div class="kicker">Store footprint</div>
-        <h2>Top coffee chains in Australia (by locations)</h2>
-        <p class="desc">Area is proportional to number of locations. Data from <code>stores.json</code>.</p>
+    </section>
+
+    <!-- MAP — separate & big -->
+    <section class="section map-big" id="melb-map">
+      <div class="section-header">
+        <div class="kicker">Places</div><h2>Where Melbourne’s cafés cluster</h2>
       </div>
-    </div>
+      <div class="chart-card" aria-label="Map of Melbourne cafés by postcode" style="border:none; padding:0;">
+        <div class="vis" id="vis"></div>
+      </div>
+      <div id="status" style="margin:10px 14px 0; color:var(--mocha); font-size:13px; background:#fff; border:1px dashed rgba(122,75,58,.35); padding:8px 10px; border-radius:10px">brewing…</div>
+    </section>
+
+    <!-- REFERENCES -->
+    <section class="section refs" id="refs">
+      <div class="section-header">
+        <div class="kicker">Sources</div><h2>References & datasets</h2>
+      </div>
+
+      <ul class="ref-list" aria-label="References and datasets used">
+        <li><a href="https://wits.worldbank.org/trade/comtrade/en/country/AUS/year/2023/tradeflow/Imports/partner/ALL/product/090111" target="_blank" rel="noopener noreferrer">UN Comtrade – Coffee (090111) imports for Australia (2023)</a><span class="meta">Dataset</span></li>
+        <li><a href="https://www.beanscenemag.com.au/how-many-australians-actually-drink-coffee/" target="_blank" rel="noopener noreferrer">Australian Bureau of Statistics (via BeanScene): “How many Australians actually drink coffee?” (2025)</a><span class="meta">ABS NNPAS 2023</span></li>
+        <li><a href="https://www.foodstandards.gov.au/science-data/food-nutrient-databases/afcd/australian-food-composition-database-download-excel-files#food" target="_blank" rel="noopener noreferrer">FSANZ – Australian Food Composition Database</a><span class="meta">Reference values</span></li>
+        <li><a href="https://www.mordorintelligence.com/industry-reports/australia-coffee-market" target="_blank" rel="noopener noreferrer">Mordor Intelligence – Australia Coffee Market Trends & Statistics</a><span class="meta">Industry report</span></li>
+        <li><a href="https://www.kaggle.com/datasets/waqi786/worldwide-coffee-habits-dataset/data?select=worldwide_coffee_habits.csv" target="_blank" rel="noopener noreferrer">Kaggle – Worldwide Coffee Habits Dataset</a><span class="meta">Dataset</span></li>
+        <li><a href="https://www.kaggle.com/datasets/michals22/coffee-dataset?select=Coffee_importers_consumption.csv" target="_blank" rel="noopener noreferrer">Kaggle – Coffee economic indicators (ICO derived)</a><span class="meta">Dataset</span></li>
+        <li><a href="https://gts.ai/dataset-download/coffee-consumption-insights-dataset/#wpcf7-f47097-o1" target="_blank" rel="noopener noreferrer">GTS – Coffee Consumption Insights Dataset</a><span class="meta">Dataset</span></li>
+        <li><a href="https://www.vittoriacoffee.com/blogs/news/australian-coffee-types" target="_blank" rel="noopener noreferrer">Vittoria Coffee – Australian Coffee Types Explained</a><span class="meta">Background</span></li>
+        <li><a href="https://balancecoffee.co.uk/blogs/blog/global-coffee-consumption-statistics" target="_blank" rel="noopener noreferrer">Balance Coffee – Global Coffee Consumption Statistics</a><span class="meta">Secondary</span></li>
+        <li><a href="https://www.ibisworld.com/australia/industry/cafes-and-coffee-shops/2015/" target="_blank" rel="noopener noreferrer">IBISWorld – Cafés & Coffee Shops in Australia</a><span class="meta">Industry</span></li>
+      </ul>
+
+      <p class="refs-note">Notes: Datasets were cleaned, filtered, and sometimes aggregated for clarity and page weight. Values shown are for the latest available period unless stated.</p>
+    </section>
   </div>
-</section>
 
-
-<script>
-(async () => {
-  // 1) Load the flat array
-  let rows = [];
-  try {
-    const res = await fetch('./stores.json', { cache: 'no-store' });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    rows = await res.json();
-  } catch (e) {
-    console.error('Failed to load stores.json:', e);
-    rows = [];
-  }
-
-  // 2) Build tuples with an explicit root (required for stratify)
-  const tuples = [
-    { id: 'root', parent: null, name: 'All Chains', value: 0 }
-  ].concat(
-    rows
-      .map(d => ({
-        id: String(d.name),
-        parent: 'root',
-        name: String(d.name),
-        value: Number(d.locations)
-      }))
-      .filter(d => Number.isFinite(d.value) && d.value > 0)
-  );
-
-  // 3) Vega treemap spec
-  const spec = {
-    $schema: "https://vega.github.io/schema/vega/v5.json",
-    autosize: { type: "fit", contains: "padding", resize: true },
-    width: 1520,
-    height: 500,
-    padding: 8,
-    background: "#ffffff",
-
-    data: [{
-      name: "table",
-      values: tuples,
-      transform: [
-        { type: "stratify", key: "id", parentKey: "parent" },
-        {
-          type: "treemap",
-          field: "value",
-          method: "squarify",
-          sort: { field: "value", order: "descending" },
-          round: true,
-          ratio: 1.2,
-          size: [{ signal: "width" }, { signal: "height" }],
-          as: ["x0","y0","x1","y1","depth","children"]
-        },
-        { type: "filter", expr: "!datum.children" } // leaf nodes only
-      ]
-    }],
-
-    scales: [{
-      name: "color",
-      type: "ordinal",
-      domain: { data: "table", field: "name" },
-      range: ["#d9c8b5","#b89374","#925c3f","#6b341c","#491e0e",
-              "#ffcf9b","#cfd7d2","#9eb4aa","#6f887d","#ffe48a"]
-    }],
-
-    marks: [
-      {
-        type: "rect",
-        from: { data: "table" },
-        encode: {
-          enter: {
-            x: { field: "x0" }, y: { field: "y0" },
-            x2:{ field: "x1" }, y2:{ field: "y1" },
-            fill: { scale: "color", field: "name" },
-            stroke: { value: "#ffffff" },
-            strokeWidth: { value: 0.1 },                 // ← thinner stroke
-            cursor: { value: "pointer" },
-            tooltip: {                                     // ← hover tooltip
-              signal: "{'Name': datum.name, 'Locations': format(datum.value, ',')}"
-            }
-          },
-          update: { opacity: { value: 1 } },
-          hover:  { opacity: { value: 0.9 } }
-        }
-      },
-      {
-        type: "text",
-        from: { data: "table" },
-        encode: {
-          enter: {
-            x: { signal: "(datum.x0 + datum.x1)/2" },
-            y: { signal: "(datum.y0 + datum.y1)/2" },
-            align: { value: "center" },
-            baseline: { value: "middle" },
-            font: { value: "Inter, system-ui, Arial" },
-            fontSize: { value: 14 },
-            fill: { value: "#000000" },
-            stroke: { value: "#ffffff" }, strokeWidth: { value: 0.05 },
-            text: { signal: "datum.name " }
-          }
-        }
-      }
-    ]
-  };
-
-  await vegaEmbed("#treemap", spec, { actions: false });
-})();
-</script>
-
-
-
-
-
-
-  <!-- Embed charts + Map preprocessing (single async block) -->
+  <!-- =============== SCRIPTS =============== -->
   <script>
-    (async () => {
-      // Embed bar charts
-      await vegaEmbed('#trade', tradeSpec,   { actions:false });
-      await vegaEmbed('#unitcost', unitCostSpec, { actions:false });
+  (async () => {
+    /* --------- Palette & global chart config --------- */
+    const COFFEE_RANGE = ["#d9c8b5","#b89374","#925c3f","#6b341c","#491e0e","#2b1107","#0f0703"];
+    const VL_THEME = {
+      view:{ stroke:null, continuousHeight:300, continuousWidth:300 },
+      axis:{ labelFont:"Inter", titleFont:"Inter", labelColor:"#4a2c2a", titleColor:"#4a2c2a" },
+      legend:{ labelFont:"Inter", titleFont:"Inter" }
+    };
 
-      // Embed donuts (no text/legend/tooltip)
-      await vegaEmbed('#donut-flat',  donutFlatSpec,  { actions:false });
-      await vegaEmbed('#donut-capp',  donutCappSpec,  { actions:false });
-      await vegaEmbed('#donut-latte', donutLatteSpec, { actions:false });
+    /* --------- Donuts with centered % (largest slice) --------- */
+    const donutSpec = (drink, title) => ({
+      $schema: "https://vega.github.io/schema/vega-lite/v5.json",
+      title: { text: title, anchor: "middle", offset: 6 },
+      autosize: { type:"fit", contains:"padding" },
+      width: "container", height: 260, background:"#ffffff",
+      data: { url: "./ingredient.json" },
+      transform: [
+        { filter: `datum.drink === '${drink}'` },
+        { joinaggregate: [{ op: "sum", field: "value", as: "total" }] },
+        { calculate: "datum.value / datum.total", as: "share" },
+        { calculate: "format(datum.share, '.0%')", as: "pctLabel" }
+      ],
+      layer: [
+        {
+          mark: { type: "arc", innerRadius: 78, cornerRadius: 6, padAngle: 0.02, tooltip: true },
+          encoding: {
+            theta: { field: "value", type: "quantitative" },
+            color: { field: "part", type: "nominal", legend: null, scale: { range: COFFEE_RANGE.slice(2,7) } },
+            tooltip: [
+              { field: "part", title: "Component" },
+              { field: "value", title: "Share", format: ".0f" },
+              { field: "pctLabel", title: "Percent" }
+            ]
+          }
+        },
+        {
+          transform: [
+            { window: [{ op: "rank", as: "r" }], sort: [{ field: "share", order: "descending" }] },
+            { filter: "datum.r === 1" },
+            { calculate: "format(datum.share, '.0%')", as: "centerPct" }
+          ],
+          mark: { type: "text", fontSize: 18, fontWeight: "700", align: "center", baseline: "middle", fill: "#1d110e" },
+          encoding: { radius: { value: 0 }, theta: { value: 0 }, text: { field: "centerPct" } }
+        }
+      ],
+      config: VL_THEME
+    });
 
-      // ----- Map preprocessing -----
+    /* Shared column legend for donuts */
+    const donutLegendSpec = {
+      $schema: "https://vega.github.io/schema/vega-lite/v5.json",
+      autosize: { type: "fit", contains: "padding" }, width: 180, height: 90,
+      data: { url: "./ingredient.json" },
+      transform: [
+        { filter: "datum.drink === 'Flat White'" },
+        { aggregate: [{ op: "max", field: "value", as: "v" }], groupby: ["part"] }
+      ],
+      layer: [
+        { mark: { type: "point", shape: "circle", size: 160, filled: true },
+          encoding: { y:{ field:"part", type:"nominal", axis:null }, x:{ value:0 }, color:{ field:"part", scale:{ range: COFFEE_RANGE.slice(2,7) }, legend:null } } },
+        { mark: { type: "text", dx: 12, align: "left", baseline: "middle", font: "Inter", fontSize: 12 },
+          encoding: { y:{ field:"part", type:"nominal", axis:null }, x:{ value: 10 }, text:{ field:"part" } } }
+      ],
+      config: { view: { stroke: null } }
+    };
+
+    await vegaEmbed('#donut-flat',  donutSpec('Flat White','Flat White'),  { actions:false });
+    await vegaEmbed('#donut-capp',  donutSpec('Cappuccino','Cappuccino'), { actions:false });
+    await vegaEmbed('#donut-latte', donutSpec('Caffé Latté','Caffé Latté'), { actions:false });
+    await vegaEmbed('#donut-legend-viz', donutLegendSpec, { actions:false });
+
+    /* --------- Trade (value) --------- */
+    const tradeSpec = {
+      $schema:"https://vega.github.io/schema/vega-lite/v5.json",
+      autosize:{ type:"fit", contains:"padding" },
+      width:"container", height:380,
+      data:{ url:"./trade_data.csv" },
+      params:[{ name:"sliderMin", value:0, bind:{ input:"range", min:0, max:120000, step:5000, name:"Min Trade Value (×1000 USD): " } }],
+      transform:[
+        { calculate:"toNumber(datum['Trade Value 1000USD'])", as:"TradeValue" },
+        { calculate:"toNumber(datum['Quantity'])", as:"Quantity" },
+        { filter:"isValid(datum.TradeValue) && isFinite(datum.TradeValue)" },
+        { filter:"isValid(datum.Quantity) && isFinite(datum.Quantity)" },
+        { filter:"datum.TradeValue >= sliderMin" }
+      ],
+      mark:{ type:"bar", cornerRadiusEnd:6, tooltip:true },
+      encoding:{
+        y:{ field:"Partner", type:"nominal", sort:"-x", title:"Partner Country" },
+        x:{ field:"TradeValue", type:"quantitative", title:"Trade Value (×1000 USD)", axis:{ format:",.0f" } },
+        color:{ value:"#7a4b3a" },
+        tooltip:[
+          { field:"Partner", title:"Partner" },
+          { field:"TradeValue", title:"Trade Value (×1000 USD)", format:"," },
+          { field:"Quantity", title:"Quantity (kg)", format:"," }
+        ]
+      },
+      config: VL_THEME
+    };
+
+    /* --------- Unit cost --------- */
+    const unitCostSpec = {
+      $schema:"https://vega.github.io/schema/vega-lite/v5.json",
+      autosize:{ type:"fit", contains:"padding" },
+      width:"container", height:380,
+      data:{ url:"./trade_data.csv" },
+      params:[{ name:"sliderMin", value:0, bind:{ input:"range", min:0, max:120000, step:5000, name:"Min Trade Value (×1000 USD): " } }],
+      transform:[
+        { calculate:"toNumber(datum['Trade Value 1000USD'])", as:"TradeValueK" },
+        { calculate:"toNumber(datum['Quantity'])", as:"Quantity" },
+        { filter:"isValid(datum.TradeValueK) && isFinite(datum.TradeValueK)" },
+        { filter:"isValid(datum.Quantity) && isFinite(datum.Quantity) && datum.Quantity > 0" },
+        { filter:"datum.TradeValueK >= sliderMin" },
+        { calculate:"(datum.TradeValueK * 1000) / datum.Quantity", as:"UnitCostUSDperKG" }
+      ],
+      mark:{ type:"bar", cornerRadiusEnd:6, tooltip:true },
+      encoding:{
+        y:{ field:"Partner", type:"nominal", sort:"-x", title:"Partner Country" },
+        x:{ field:"UnitCostUSDperKG", type:"quantitative", title:"Unit Cost (USD/kg)", axis:{ format:".2f" } },
+        color:{ value:"#b07d62" },
+        tooltip:[
+          { field:"Partner", title:"Partner" },
+          { field:"UnitCostUSDperKG", title:"Unit Cost (USD/kg)", format:".2f" },
+          { field:"TradeValueK", title:"Trade Value (×1000 USD)", format:"," },
+          { field:"Quantity", title:"Quantity (kg)", format:"," }
+        ]
+      },
+      config: VL_THEME
+    };
+
+    await vegaEmbed('#trade', tradeSpec, { actions:false });
+    await vegaEmbed('#unitcost', unitCostSpec, { actions:false });
+
+    /* --------- Gender pie --------- */
+    const genderPie = async () => {
+      let values;
+      try { const res = await fetch('./gender.json', { cache:'no-store' }); if (!res.ok) throw new Error(); values = await res.json(); }
+      catch { values = [{ Gender:"Women", Percent:52.3 }, { Gender:"Men", Percent:47.4 }]; }
+
+      const container = document.querySelector('#chart-gender-pie');
+      if (!container) return;
+      const width = Math.max(380, Math.floor(container.getBoundingClientRect().width || 420));
+
+      const spec = {
+        $schema: "https://vega.github.io/schema/vega-lite/v5.json",
+        autosize: { type:"none" }, width, height: 320,
+        data: { values },
+        transform: [
+          { calculate:"toNumber(datum.Percent)", as:"Percent" },
+          { joinaggregate:[{ op:"sum", field:"Percent", as:"Total" }] },
+          { calculate:"datum.Percent / datum.Total", as:"Share" }
+        ],
+        layer: [
+          { mark:{ type:"arc", outerRadius:140, stroke:"white" },
+            encoding:{
+              theta:{ field:"Percent", type:"quantitative" },
+              color:{ field:"Gender", type:"nominal", title:null, scale:{ domain:["Women","Men"], range:["#6b341c","#b89374"] },
+                      legend:{ orient:"bottom", direction:"horizontal" } },
+              tooltip:[ { field:"Gender" }, { field:"Percent", type:"quantitative", format:".1f", title:"Percent" } ]
+            }},
+          { transform:[{ filter:"datum.Gender === 'Women'" }],
+            mark:{ type:"text", fontSize:12, align:"center", baseline:"middle", dy:-80, dx:-44, fill:"#ffffff" },
+            encoding:{ theta:{ field:"Percent" }, radius:{ value:92 }, text:{ field:"Gender" } } },
+          { transform:[{ filter:"datum.Gender === 'Men'" }],
+            mark:{ type:"text", fontSize:12, align:"center", baseline:"middle", dy:-26, dx:42, fill:"#1d110e" },
+            encoding:{ theta:{ field:"Percent" }, radius:{ value:44 }, text:{ field:"Gender" } } }
+        ],
+        config: VL_THEME
+      };
+
+      container.innerHTML = "";
+      await vegaEmbed("#chart-gender-pie", spec, { actions:false });
+    };
+
+    /* --------- Coffee dependence (vertical bars) --------- */
+    const coffeeBars = async () => {
+      let rows;
+      try { const res = await fetch('./coffee_dependence.json', { cache:'no-store' }); if (!res.ok) throw new Error(); rows = await res.json(); }
+      catch {
+        rows = [
+          { Generation:"Gen Z", Percent:13 },
+          { Generation:"Gen Y (Millennials)", Percent:29 },
+          { Generation:"Gen X", Percent:31 },
+          { Generation:"Baby Boomers", Percent:19 }
+        ];
+      }
+
+      const container = document.querySelector('#coffee-bars');
+      if (!container) return;
+      const width = Math.max(520, Math.floor(container.getBoundingClientRect().width || 720));
+
+      const spec = {
+        $schema:"https://vega.github.io/schema/vega-lite/v5.json",
+        autosize:{ type:"none" },
+        width, height:320,
+        data:{ values: rows },
+        transform:[
+          { calculate:"toNumber(datum.Percent)", as:"Percent" },
+          { calculate:"datum.Percent/100", as:"Rate" },
+          { calculate:"datum.Percent + '%'", as:"Label" }
+        ],
+        layer:[
+          { mark:{ type:"bar", cornerRadiusEnd:6, tooltip:true },
+            encoding:{
+              x:{ field:"Generation", type:"nominal",
+                  sort:["Gen Z","Gen Y (Millennials)","Gen X","Baby Boomers"], title:null, axis:{ labelAngle:0 } },
+              y:{ field:"Rate", type:"quantitative", title:"Percent", axis:{ format:".0%" }, scale:{ domain:[0,0.4] } },
+              color:{ value:"#7a4b3a" }
+            }},
+          { mark:{ type:"text", dy:-6, fontWeight:"bold", fill:"#1d110e" },
+            encoding:{
+              x:{ field:"Generation", type:"nominal",
+                  sort:["Gen Z","Gen Y (Millennials)","Gen X","Baby Boomers"] },
+              y:{ field:"Rate", type:"quantitative" },
+              text:{ field:"Label" }
+            }}
+        ],
+        config: VL_THEME
+      };
+
+      container.innerHTML = "";
+      await vegaEmbed("#coffee-bars", spec, { actions:false });
+    };
+
+    await genderPie();
+    await coffeeBars();
+
+    /* --------- Import/Export line --------- */
+    const ieLine = async () => {
+      const spec = {
+        $schema:"https://vega.github.io/schema/vega-lite/v5.json",
+        description:"Green-coffee trade (USD) by year with Import/Export toggle.",
+        autosize:{ type:"fit-x", contains:"padding" },
+        width:"container", height:260,
+        params:[ { name:"flow", value:"Import" } ],
+        data:{ url:"./i_e_year.csv" },
+        transform:[
+          { filter:"datum.Flow === flow" },
+          { calculate:"toNumber(datum['Trade (USD)'])", as:"TradeUSD" },
+          { calculate:"toNumber(datum['Year'])", as:"YearNum" },
+          { filter:"isValid(datum.TradeUSD) && isFinite(datum.TradeUSD) && isValid(datum.YearNum)" }
+        ],
+        mark:{ type:"line", point:{ filled:true, size:50 }, strokeWidth:2.4 },
+        encoding:{
+          x:{ field:"YearNum", type:"quantitative", title:"Year", axis:{ tickMinStep:1, format:"d", labelAngle:0 } },
+          y:{ field:"TradeUSD", type:"quantitative", title:"Trade (USD)", axis:{ format:"$,.2s" } },
+          color:{ value:"#7a4b3a" },
+          tooltip:[ { field:"YearNum", title:"Year", format:"d" }, { field:"Flow" }, { field:"TradeUSD", title:"Trade (USD)", format:"$,.0f" } ],
+          order:{ field:"YearNum" }
+        },
+        config: VL_THEME
+      };
+
+      const embedResult = await vegaEmbed("#ie-line", spec, { actions:false, renderer:"canvas" });
+      const view = embedResult.view;
+      const sel = document.getElementById("flowSelect");
+      if (sel) {
+        view.signal("flow", sel.value).run();
+        sel.addEventListener("change", () => view.signal("flow", sel.value).run());
+      }
+    };
+    await ieLine();
+
+    /* --------- Treemap (Vega) --------- */
+    const treemap = async () => {
+      let rows = [];
+      try { const res = await fetch('./stores.json', { cache:'no-store' }); if (!res.ok) throw new Error(res.status); rows = await res.json(); }
+      catch(e){ rows = []; }
+
+      const container = document.getElementById('treemap');
+      if (!container) return;
+      const measuredWidth = Math.max(600, Math.floor(container.getBoundingClientRect().width || 1000));
+      const measuredHeight = 360;
+
+      const tuples = [{ id:'root', parent:null, name:'All Chains', value:0 }].concat(
+        rows.map(d => ({ id:String(d.name), parent:'root', name:String(d.name), value:Number(d.locations) }))
+            .filter(d => Number.isFinite(d.value) && d.value > 0)
+      );
+
+      const spec = {
+        $schema:"https://vega.github.io/schema/vega/v5.json",
+        autosize:{ type:"fit", contains:"padding", resize:true },
+        width: measuredWidth, height: measuredHeight, padding:6, background:"#ffffff",
+        data:[{
+          name:"table", values:tuples,
+          transform:[
+            { type:"stratify", key:"id", parentKey:"parent" },
+            { type:"treemap", field:"value", method:"squarify", sort:{ field:"value", order:"descending" },
+              round:true, ratio:1.2, size:[{ signal:"width" },{ signal:"height" }],
+              as:["x0","y0","x1","y1","depth","children"] },
+            { type:"filter", expr:"!datum.children" }
+          ]
+        }],
+        scales:[{
+          name:"color", type:"ordinal",
+          domain:{ data:"table", field:"name" },
+          range:["#d9c8b5","#b89374","#925c3f","#6b341c","#491e0e","#ffcf9b","#cfd7d2","#9eb4aa","#6f887d","#ffe48a"]
+        }],
+        marks:[
+          { type:"rect", from:{ data:"table" },
+            encode:{ enter:{
+              x:{ field:"x0" }, y:{ field:"y0" }, x2:{ field:"x1" }, y2:{ field:"y1" },
+              fill:{ scale:"color", field:"name" }, stroke:{ value:"#ffffff" }, strokeWidth:{ value:0.8 },
+              tooltip:{ signal:"{'Chain': datum.name, 'Locations': format(datum.value, ',')}" }
+            } } },
+          { type:"text", from:{ data:"table" },
+            encode:{ enter:{
+              x:{ signal:"(datum.x0 + datum.x1)/2" }, y:{ signal:"(datum.y0 + datum.y1)/2" },
+              align:{ value:"center" }, baseline:{ value:"middle" },
+              font:{ value:"Inter, system-ui, Arial" }, fontSize:{ value:12 }, fill:{ value:"#000" },
+              text:{ signal:"datum.name" }
+            } } }
+        ]
+      };
+
+      await vegaEmbed("#treemap", spec, { actions:false });
+    };
+    await treemap();
+
+    /* --------- Map --------- */
+    const cafesMap = async () => {
       const [mapRes, dataRes] = await Promise.all([ fetch('./map.json'), fetch('./data.json') ]);
-      if (!mapRes.ok) throw new Error('Failed to load map.json: ' + mapRes.status);
-      if (!dataRes.ok) throw new Error('Failed to load data.json: ' + dataRes.status);
+      if (!mapRes.ok || !dataRes.ok) return;
 
       const mapGeo = await mapRes.json();
       const poiGeo = await dataRes.json();
@@ -783,41 +690,53 @@
         agg.push({pc:a.pc,label,n:a.n,lon_mean,lat_mean});
       }
 
-      const statusEl=document.getElementById('status');
-      statusEl.innerHTML = `Loaded <code>map.json</code>: <b>${mapFeatures.length}</b> features &nbsp;|&nbsp; `
-        + `<code>data.json</code>: <b>${poiFeaturesRaw.length}</b> features `
-        + `→ Aggregated <b>${agg.length}</b> postcodes (max <b>${maxN}</b>)`;
+      const statusEl = document.getElementById('status');
+      if (statusEl) {
+        statusEl.innerHTML =
+          `Loaded <code>map.json</code>: <b>${mapFeatures.length}</b> | ` +
+          `<code>data.json</code>: <b>${poiFeaturesRaw.length}</b> → Aggregated ` +
+          `<b>${agg.length}</b> postcodes (max <b>${maxN}</b>)`;
+      }
 
-      // Map spec
       const mapSpec={
-        "$schema":"https://vega.github.io/schema/vega-lite/v5.json",
-        "autosize": {"type":"fit", "contains":"padding"},
-        "width":"container","height": 620,"background":"#ffffff",
-        "projection":{"type":"mercator","center":[144.96,-37.82],"scale":500000},
-        "layer":[
-          {"data":{"sphere":true},"mark":{"type":"geoshape","fill":"#fff7e9"}},
-          {"data":{"values":mapFeatures},"mark":{"type":"geoshape","fill":null,"stroke":"#5b3a2e","strokeWidth":1},
-           "encoding":{"shape":{"field":"geometry","type":"geojson"}}},
-          {"data":{"values":agg},"layer":[
-            {"mark":{"type":"circle","opacity":0.9,"stroke":"#ffffff","strokeWidth":1,"blend":"multiply"},
-             "encoding":{
-               "longitude":{"field":"lon_mean","type":"quantitative"},
-               "latitude":{"field":"lat_mean","type":"quantitative"},
-               "size":{"field":"n","type":"quantitative","title":"Venues per postcode","scale":{"type":"sqrt","domain":[1,Math.max(5,maxN)],"range":[220,3200]}},
-               "color":{"field":"n","type":"quantitative","title":"Count","scale":{"range":COFFEE_RANGE,"domain":[1,Math.max(5,maxN)]}},
-               "tooltip":[{"field":"pc","title":"Postcode"},{"field":"label","title":"Suburb (mode)"},{"field":"n","title":"Cafés/Restaurants"}]
-             }},
-            {"mark":{"type":"text","baseline":"middle","align":"center","fontSize":14,"fontWeight":"bold","fill":"#ffffff","stroke":"#1d110e","strokeWidth":0.1},
-             "encoding":{"longitude":{"field":"lon_mean","type":"quantitative"},"latitude":{"field":"lat_mean","type":"quantitative"},"text":{"field":"n","type":"quantitative"}}},
-            {"mark":{"type":"text","baseline":"bottom","align":"center","dy":-25,"dx":-10,"fontSize":13,"fontWeight":"bold","fill":"#1d110e","stroke":"#ffffff","strokeWidth":0.1},
-             "encoding":{"longitude":{"field":"lon_mean","type":"quantitative"},"latitude":{"field":"lat_mean","type":"quantitative"},"text":{"field":"label","type":"nominal"}}}
+        $schema:"https://vega.github.io/schema/vega-lite/v5.json",
+        autosize:{ type:"fit", contains:"padding" },
+        width:"container", height:640, background:"#ffffff",
+        projection:{ type:"mercator", center:[144.96,-37.82], scale:500000 },
+        layer:[
+          { data:{ sphere:true }, mark:{ type:"geoshape", fill:"#fff7e9" } },
+          { data:{ values:mapFeatures }, mark:{ type:"geoshape", fill:null, stroke:"#5b3a2e", strokeWidth:1 },
+            encoding:{ shape:{ field:"geometry", type:"geojson" } } },
+          { data:{ values:agg }, layer:[
+            { mark:{ type:"circle", opacity:0.9, stroke:"#ffffff", strokeWidth:1, blend:"multiply" },
+              encoding:{
+                longitude:{ field:"lon_mean" }, latitude:{ field:"lat_mean" },
+                size:{ field:"n", type:"quantitative", title:"Venues per postcode",
+                       scale:{ type:"sqrt", domain:[1,Math.max(5,maxN)], range:[220,3200] } },
+                color:{ field:"n", type:"quantitative", title:"Count", scale:{ range:COFFEE_RANGE, domain:[1,Math.max(5,maxN)] } },
+                tooltip:[ { field:"pc", title:"Postcode" }, { field:"label", title:"Suburb (mode)" }, { field:"n", title:"Cafés/Restaurants" } ]
+              }},
+            { mark:{ type:"text", baseline:"middle", align:"center", fontSize:12, fontWeight:"bold", fill:"#ffffff" },
+              encoding:{ longitude:{ field:"lon_mean" }, latitude:{ field:"lat_mean" }, text:{ field:"n" } } }
           ]}
         ],
-        "config":{"view":{"stroke":null},"axis":{"labelFont":"Inter","titleFont":"Inter"}}
+        config: VL_THEME
       };
 
       await vegaEmbed('#vis', mapSpec, { actions:false });
-    })();
+    };
+    await cafesMap();
+
+    /* --------- Section reveal on scroll (flow) --------- */
+    const io = ('IntersectionObserver' in window)
+      ? new IntersectionObserver(entries => {
+          for (const e of entries) if (e.isIntersecting) e.target.classList.add('in');
+        }, { threshold: 0.1 })
+      : null;
+
+    document.querySelectorAll('.section').forEach(s => { if (io) io.observe(s); else s.classList.add('in'); });
+
+  })();
   </script>
 </body>
 </html>
