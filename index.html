@@ -227,9 +227,7 @@
     <header class="hero">
       <h1>Australia on Caffeine ☕</h1>
       <p class="sub">
-        From post-war espresso bars to third-wave roasters, Australia’s coffee culture is independent and quality-obsessed.
-        This infographic traces the pipeline behind the daily ritual—what’s in our cups, who drinks them, how habits are changing,
-        and the trade & places that make it possible.
+Australia’s coffee culture is fiercely independent, craft-minded, and obsessed with quality. This infographic follows the journey behind every cup: what we drink, who drinks it, how habits are shifting, and the trade, places, and people that keep the nation caffeinated.
       </p>
     </header>
 
@@ -287,7 +285,7 @@
           <div class="prose">
             <h3>The headline takeaway</h3>
             <p>Women report slightly higher coffee consumption than men in our sample. Espresso culture runs deep, with strong at-home habits and regular café visits.</p>
-            <p><strong>What to watch:</strong> younger demographics lean toward milk-based drinks; machine ownership and local roaster purchases keep rising.</p>
+            <p class="lade"><strong>What to watch:</strong> younger demographics lean toward milk-based drinks; machine ownership and local roaster purchases keep rising.</p>
           </div>
         </div>
 
@@ -327,7 +325,7 @@
         <!-- RIGHT: updated text -->
         <div class="text-col">
           <p class="lede">
-            <strong>The headline takeaway</strong><br>
+            <h3>The headline takeaway</h3><br>
             Coffee reliance is strongest among mid-career adults, with younger people reporting a looser attachment and older groups describing a steadier, more moderate habit. The pattern points to coffee as a daily “fuel” during the busiest work and family years.
           </p>
 
@@ -344,11 +342,18 @@
     <section class="section" id="frequency">
       <div class="section-header">
               <span class="section-title">Habits</span>
-      <h2>How often we drink coffee</h2>
+      <h2>How often Australian's drink coffee</h2>
       </div>
       <div class="chart-card">
         <div class="vis" id="chart-stacked"></div>
       </div>
+      <div class="text-col">
+      <div class="prose">
+        <h3>The headline takeaway</h3>
+        <p>Most Australians drink coffee regularly but not always daily: the bulk of respondents sit in the “a few times a week” and “about once a week” bands, with a smaller but meaningful group having coffee every day. Truly infrequent drinkers are a minority.</p>
+        <p><strong>What to watch:</strong> shifts from weekly to daily habits as machines and pods spread at home; cost-of-living pressures nudging people from café purchases to home prep; and seasonality or working-from-home patterns that may move people between weekly and several-times-a-week segments.</p>
+      </div>
+    </div>
     </section>
 
     <h1>What The Beans Are Billing Us _________________________________________________________________________________________</h1>
@@ -365,9 +370,13 @@
             <div class="vis" id="trade"></div>
           </div>
         </div>
-        <div class="text-col">
-          <p class="lede">Brazil dominates import value; Colombia is a distant second. Use the slider to hide small-value importers.</p>
+      <div class="text-col">
+        <div class="prose">
+          <h3>The headline takeaway</h3>
+          <p>Brazil overwhelmingly leads Australia’s coffee imports, with Colombia a distant second. Most other partners contribute relatively small shares, underscoring how concentrated our supply is in a few Latin American origins.</p>
+          <p><strong>What to watch:</strong> Weather shocks, currency moves, or logistics issues in Brazil could ripple through local prices. Any growth in imports from Vietnam or Papua New Guinea would signal diversification away from a single dominant supplier.</p>
         </div>
+      </div>
       </div>
     </section>
 
@@ -377,9 +386,13 @@
         <h2>What do we pay per kilogram?</h2>
       </div>
       <div class="grid reverse">
-        <div class="text-col">
-          <p class="lede">Guatemala has the highest unit cost; India and Vietnam are lowest. Values come from value/quantity.</p>
+      <div class="text-col">
+        <div class="prose">
+          <h3>The headline takeaway</h3>
+          <p>Guatemala commands the highest unit cost per kilogram—consistent with smaller volumes of higher-quality or specialty beans—while India and Vietnam sit at the lower end, reflecting large-scale, cost-efficient supply.</p>
+          <p><strong>What to watch:</strong> If premium sourcing expands, expect average unit costs to rise. Track shifts in price-per-kg alongside volumes to see whether the market is tilting toward quality/ethics or maintaining a value focus.</p>
         </div>
+      </div>
         <div class="viz-col">
           <div class="chart-card" aria-label="Bar chart for unit cost by partner">
             <div class="vis" id="unitcost"></div>
@@ -391,7 +404,7 @@
     <section class="section" id="trade-trend">
       <span class="section-title">Trade</span>
       <div class="section-header">
-        <h2>Imports vs exports over time</h2>
+        <h2>Imports vs exports over time (Green Coffee/ Raw Unroasted Coffee)</h2>
       </div>
       <div class="grid">
         <div class="viz-col">
@@ -404,7 +417,11 @@
           </div>
         </div>
         <div class="text-col">
-          <p class="lede">Australia is a net importer of green coffee; the line shows totals in USD by year. Toggle flow with the dropdown.</p>
+          <div class="prose">
+            <h3>The headline takeaway</h3>
+            <p>Australia is a clear net importer of green coffee: import values are many times larger and show a pandemic-era surge around 2021–22 before easing. Exports remain small and relatively stable, reflecting a niche role (specialty/small re-exports) rather than a major origin.</p>
+            <p><strong>What to watch:</strong> currency swings (AUD/USD), Brazil/Colombia harvests, shipping costs, and domestic café demand—all of which move import values. On the export side, growth in local roasting and specialty re-exports could lift the line, but any rise will likely be incremental.</p>
+          </div>
         </div>
       </div>
     </section>
@@ -424,6 +441,41 @@
     </section>
 
 
+    <!-- Center wrapper -->
+    <div style="display:flex; justify-content:center; padding:8px 0;">
+      <!-- ===== Tiny card: Independents dominate ===== -->
+      <div aria-label="Independents market share" 
+          style="
+            --espresso:#4a2c2a; --mocha:#7a4b3a; --foam:#fff7e9;
+            display:block; width: min(1060px, 100%); margin:0 auto; text-align:center;
+            background:linear-gradient(180deg,#ffffff,#fffaf3);
+            border:1px solid rgba(74,44,42,.12); border-radius:14px;
+            box-shadow:0 10px 24px rgba(42,20,10,.08), inset 0 1px 0 rgba(255,255,255,.8);
+            padding:12px 12px 10px; font-family:Inter,system-ui,Arial,sans-serif; color:var(--espresso);
+          ">
+        <span style="
+            display:inline-block; margin:-4px 0 8px; padding:4px 8px;
+            font:800 10px/1 Inter; letter-spacing:.14em; text-transform:uppercase;
+            background:var(--foam); color:var(--mocha);
+            border:1px solid rgba(122,75,58,.25); border-radius:999px;
+          ">Places and Market Structure</span>
+
+        <div style="font-weight:800; font-size:32px; line-height:1;">70%+</div>
+        <div style="font-size:11px; color:var(--mocha); margin-top:4px;">
+          of Australian cafés are <strong>independent</strong>
+        </div>
+
+        <hr style="border:none; height:1px; background:rgba(74,44,42,.08); margin:8px 0 6px;">
+
+        <!-- ≤50 words -->
+        <div style="font-size:11px; color:var(--mocha);">
+          Independent cafés win because small sites are cheap to open, roaster partnerships lift quality, and regulars reward service and personality. Chains offer convenience, but independents own the “destination cup” and brunch traffic—keeping share above 70%.
+        </div>
+      </div>
+    </div>
+
+
+
 
     <!-- MAP — wider & taller, legend on right -->
     <section class="section map-big" id="melb-map">
@@ -437,12 +489,24 @@
       <p class="lede" style="margin-top:12px;">Melbourne’s café map reveals a single dominant cluster: the CBD (postcode 3000) with 870 venues. Commuter and tourist footfall, laneway culture, and dense offices and universities pack cafés into a compact grid. Nearby hubs—South Yarra, Richmond, Fitzroy—remain lively but smaller, lacking the CBD’s commercial gravity and all-day demand, nightlife vibrancy.</p>
     </section>
 
+    <section class="section" id="habit-summary">  
+            <div class="text-col">
+          <div class="prose">
+            <h3>An Overview</h3>
+            <p>Australia’s coffee story is clear: a quality-first culture powered by independents, sustained by steady weekly habits, and supplied by a concentrated import base. Cafés cluster where people move, especially the CBD, while home coffee machines are becoming more common. Coffee ultimately plays an important role in Australia's Culture and its Economy.</p>
+
+          </div>
+        </div>
+    </section>
+
     <!-- REFERENCES -->
     <section class="section refs" id="refs">
       <span class="section-title">References</span>
       <div class="section-header">
         <div class="kicker"></div><h2>References & datasets</h2>
       </div>
+
+      
 
       <ul class="ref-list" aria-label="References and datasets used">
         <li><a href="https://wits.worldbank.org/trade/comtrade/en/country/AUS/year/2023/tradeflow/Imports/partner/ALL/product/090111" target="_blank" rel="noopener noreferrer">UN Comtrade – Coffee (090111) imports for Australia (2023)</a><span class="meta">Dataset</span></li>
@@ -459,6 +523,8 @@
 
       <p class="refs-note">Notes: Data were cleaned and aggregated for clarity. Latest available periods shown unless stated.</p>
     </section>
+
+    
   </div>
 
   <!-- =============== SCRIPTS =============== -->
@@ -781,61 +847,112 @@ const coffeeBars = async () => {
     };
     await ieLine();
 
-    /* --------- Treemap (Vega) --------- */
-    const treemap = async () => {
-      let rows = [];
-      try { const res = await fetch('./stores.json', { cache:'no-store' }); if (!res.ok) throw new Error(res.status); rows = await res.json(); }
-      catch(e){ rows = []; }
+/* --------- Treemap (Vega) --------- */
+const treemap = async () => {
+  let rows = [];
+  try {
+    const res = await fetch('./stores.json', { cache:'no-store' });
+    if (!res.ok) throw new Error(res.status);
+    rows = await res.json();
+  } catch { rows = []; }
 
-      const container = document.getElementById('treemap');
-      if (!container) return;
-      const measuredWidth = Math.max(600, Math.floor(container.getBoundingClientRect().width || 1000));
-      const measuredHeight = 360;
+  const container = document.getElementById('treemap');
+  if (!container) return;
+  const measuredWidth  = Math.max(600, Math.floor(container.getBoundingClientRect().width || 1000));
+  const measuredHeight = 360;
 
-      const tuples = [{ id:'root', parent:null, name:'All Chains', value:0 }].concat(
-        rows.map(d => ({ id:String(d.name), parent:'root', name:String(d.name), value:Number(d.locations) }))
-            .filter(d => Number.isFinite(d.value) && d.value > 0)
-      );
+  const tuples = [{ id:'root', parent:null, name:'All Chains', value:0 }].concat(
+    rows.map(d => ({ id:String(d.name), parent:'root', name:String(d.name), value:Number(d.locations) }))
+        .filter(d => Number.isFinite(d.value) && d.value > 0)
+  );
 
-      const spec = {
-        $schema:"https://vega.github.io/schema/vega/v5.json",
-        autosize:{ type:"fit", contains:"padding", resize:true },
-        width: measuredWidth, height: measuredHeight, padding:6, background:"#ffffff",
-        data:[{
-          name:"table", values:tuples,
-          transform:[
-            { type:"stratify", key:"id", parentKey:"parent" },
-            { type:"treemap", field:"value", method:"squarify", sort:{ field:"value", order:"descending" },
-              round:true, ratio:1.2, size:[{ signal:"width" },{ signal:"height" }],
-              as:["x0","y0","x1","y1","depth","children"] },
-            { type:"filter", expr:"!datum.children" }
-          ]
-        }],
-        scales:[{
-          name:"color", type:"ordinal",
-          domain:{ data:"table", field:"name" },
-          range:["#d9c8b5","#b89374","#925c3f","#6b341c","#491e0e","#ffcf9b","#cfd7d2","#9eb4aa","#6f887d","#ffe48a"]
-        }],
-        marks:[
-          { type:"rect", from:{ data:"table" },
-            encode:{ enter:{
-              x:{ field:"x0" }, y:{ field:"y0" }, x2:{ field:"x1" }, y2:{ field:"y1" },
-              fill:{ scale:"color", field:"name" }, stroke:{ value:"#ffffff" }, strokeWidth:{ value:0.8 },
-              tooltip:{ signal:"{'Chain': datum.name, 'Locations': format(datum.value, ',')}" }
-            } } },
-          { type:"text", from:{ data:"table" },
-            encode:{ enter:{
-              x:{ signal:"(datum.x0 + datum.x1)/2" }, y:{ signal:"(datum.y0 + datum.y1)/2" },
-              align:{ value:"center" }, baseline:{ value:"middle" },
-              font:{ value:"Inter, system-ui, Arial" }, fontSize:{ value:12 }, fill:{ value:"#000" },
-              text:{ signal:"datum.name" }
-            } } }
+  const spec = {
+    $schema: "https://vega.github.io/schema/vega/v5.json",
+    autosize: { type:"fit", contains:"padding", resize:true },
+    width: measuredWidth, height: measuredHeight, padding: 6, background: "#ffffff",
+
+    data: [
+      {
+        name: "table",
+        values: tuples,
+        transform: [
+          { type:"stratify", key:"id", parentKey:"parent" },
+          { type:"treemap",
+            field:"value", method:"squarify",
+            sort:{ field:"value", order:"descending" },
+            round:true, ratio:1.2, size:[{ signal:"width" },{ signal:"height" }],
+            as:["x0","y0","x1","y1","depth","children"]
+          },
+          { type:"filter", expr:"!datum.children" },
+          { type:"formula", as:"w",    expr:"datum.x1 - datum.x0" },
+          { type:"formula", as:"h",    expr:"datum.y1 - datum.y0" },
+          { type:"formula", as:"area", expr:"datum.w * datum.h" }
         ]
-      };
+      },
+      // stats for dynamic label contrast (white on darker tiles)
+      {
+        name: "stats",
+        source: "table",
+        transform: [{ type:"aggregate", fields:["value"], ops:["median"], as:["med"] }]
+      }
+    ],
 
-      await vegaEmbed("#treemap", spec, { actions:false });
-    };
-    await treemap();
+    // Map value -> shade so larger tiles are darker
+    scales: [
+      {
+        name: "color",
+        type: "linear",
+        domain: { data:"table", field:"value" },
+        range: ["#d9c8b5","#b89374","#925c3f","#6b341c","#491e0e"],
+        nice: true
+      }
+    ],
+
+    marks: [
+      {
+        type: "rect",
+        from: { data: "table" },
+        encode: {
+          enter: {
+            x:   { field:"x0" }, y:   { field:"y0" },
+            x2:  { field:"x1" }, y2:  { field:"y1" },
+            fill:{ scale:"color", field:"value" },
+            stroke: { value:"#ffffff" }, strokeWidth: { value:0.8 },
+            tooltip:{ signal:"{'Chain': datum.name, 'Locations': format(datum.value, ',')}" }
+          }
+        }
+      },
+      {
+        type: "text",
+        from: { data: "table" },
+        encode: {
+          enter: {
+            align:   { value:"center" },
+            baseline:{ value:"middle" },
+            clip:    { value: true } // keep text inside the tile
+          },
+          update: {
+            x:        { signal:"(datum.x0 + datum.x1)/2" },
+            y:        { signal:"(datum.y0 + datum.y1)/2" },
+            // Hide labels on very small tiles
+            opacity:  { signal:"datum.area >= 900 ? 1 : 0" },
+            // Auto-size text to fit; clamp to a nice range
+            font:     { value:"Inter, system-ui, Arial" },
+            fontSize: { signal:"clamp(min(datum.w, datum.h)/6, 10, 16)" },
+            // Truncate so it never overhangs horizontally
+            limit:    { signal:"max(datum.w - 8, 0)" },
+            text:     { signal:"datum.name" },
+            // White text on darker tiles (>= median value), black otherwise
+            fill:     { signal:"datum.value >= data('stats')[0].med ? '#ffffff' : '#000000'" }
+          }
+        }
+      }
+    ]
+  };
+
+  await vegaEmbed("#treemap", spec, { actions:false });
+};
+await treemap();
 
 /* --------- Frequency (normalized stacked bar) — FIXED SCALE --------- */
 (async () => {
@@ -869,7 +986,7 @@ const coffeeBars = async () => {
     padding: { top: 8, right: 16, bottom: 70, left: 10 },
 
     title: {
-      text: "How often we drink coffee",
+      text: "Store and Home Coffee",
       subtitle: "Share of respondents by frequency (normalized to 100%)",
       anchor: "start",
       font: "Inter", color: "#4a2c2a",
